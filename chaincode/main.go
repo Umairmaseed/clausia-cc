@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hyperledger-labs/cc-tools-demo/chaincode/assettypes"
-	"github.com/hyperledger-labs/cc-tools-demo/chaincode/datatypes"
-	"github.com/hyperledger-labs/cc-tools-demo/chaincode/header"
+	"github.com/hyperledger-labs/goprocess-cc/chaincode/assettypes"
+	"github.com/hyperledger-labs/goprocess-cc/chaincode/datatypes"
+	"github.com/hyperledger-labs/goprocess-cc/chaincode/header"
 	"github.com/hyperledger-labs/cc-tools/assets"
 	"github.com/hyperledger-labs/cc-tools/events"
 	sw "github.com/hyperledger-labs/cc-tools/stubwrapper"

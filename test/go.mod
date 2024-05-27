@@ -1,3 +1,3 @@
-module github.com/hyperledger-labs/cc-tools-demo/test
+module github.com/hyperledger-labs/goprocess-cc/test
 
 go 1.16
