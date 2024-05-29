@@ -11,4 +11,5 @@ var txList = []tx.Transaction{
 	tx.DeleteAsset,
 	txdefs.UploadDocument,
 	txdefs.PutSignature,
+	txdefs.CancelDocument,
 }
