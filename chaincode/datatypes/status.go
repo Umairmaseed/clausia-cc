@@ -8,28 +8,27 @@ import (
 	"github.com/hyperledger-labs/cc-tools/errors"
 )
 
-// Example of a custom data type using enum-like structure (iota)
-// This allows the use of verification by const values instead of float64, improving readability
-// Example:
-// 		if assetMap["bookType"].(float64) == (float64)(BookTypeHardcover)
-// 			...
-
-type BookType float64
+type StatusType float64
 
 const (
-	BookTypeHardcover BookType = iota
-	BookTypePaperback
-	BookTypeEbook
+	waiting StatusType = iota
+	cancelled
+	expired
+	finalized
+	partiallyFinalized
 )
 
-// CheckType checks if the given value is defined as valid BookType consts
-func (b BookType) CheckType() errors.ICCError {
+func (b StatusType) CheckType() errors.ICCError {
 	switch b {
-	case BookTypeHardcover:
+	case waiting:
 		return nil
-	case BookTypePaperback:
+	case cancelled:
 		return nil
-	case BookTypeEbook:
+	case expired:
+		return nil
+	case finalized:
+		return nil
+	case partiallyFinalized:
 		return nil
 	default:
 		return errors.NewCCError("invalid type", 400)
@@ -37,15 +36,16 @@ func (b BookType) CheckType() errors.ICCError {
 
 }
 
-var bookType = assets.DataType{
+var statusType = assets.DataType{
 	AcceptedFormats: []string{"number"},
 	DropDownValues: map[string]interface{}{
-		"Hardcover": BookTypeHardcover,
-		"Paperback": BookTypePaperback,
-		"Ebook":     BookTypeEbook,
+		"waiting for signatures": waiting,
+		"cancelled":              cancelled,
+		"expired":                expired,
+		"finalized":              finalized,
+		"partially finalized":    partiallyFinalized,
 	},
-	Description: ``,
-
+	Description: "Status of the signature",
 	Parse: func(data interface{}) (string, interface{}, errors.ICCError) {
 		var dataVal float64
 		switch v := data.(type) {
@@ -53,7 +53,7 @@ var bookType = assets.DataType{
 			dataVal = v
 		case int:
 			dataVal = (float64)(v)
-		case BookType:
+		case StatusType:
 			dataVal = (float64)(v)
 		case string:
 			var err error
@@ -65,7 +65,7 @@ var bookType = assets.DataType{
 			return "", nil, errors.NewCCError("asset property must be an integer, is %t", 400)
 		}
 
-		retVal := (BookType)(dataVal)
+		retVal := (StatusType)(dataVal)
 		err := retVal.CheckType()
 		return fmt.Sprint(retVal), retVal, err
 	},

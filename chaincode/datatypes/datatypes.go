@@ -6,6 +6,7 @@ import (
 
 // CustomDataTypes contain the user-defined primary data types
 var CustomDataTypes = map[string]assets.DataType{
-	"cpf":      cpf,
-	"bookType": bookType,
+	"sha256":     sha256,
+	"statusType": statusType,
+	"pemPubKey":  pemPubKey,
 }
