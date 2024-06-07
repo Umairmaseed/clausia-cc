@@ -11,8 +11,8 @@ var Document = assets.AssetType{
 		{
 			Required: true,
 			IsKey:    true,
-			Tag:      "orignalHash",
-			Label:    "orignalHash",
+			Tag:      "originalHash",
+			Label:    "originalHash",
 			DataType: "sha256",
 		},
 		{
@@ -43,8 +43,8 @@ var Document = assets.AssetType{
 			DataType: "[]->signer",
 		},
 		{
-			Tag:      "orignalDocURL",
-			Label:    "orignalDocURL",
+			Tag:      "originalDocURL",
+			Label:    "originalDocURL",
 			DataType: "string",
 			Required: true,
 		},
