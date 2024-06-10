@@ -17,8 +17,8 @@ var CreateSigner = tx.Transaction{
 
 	Args: []tx.Argument{
 		{
-			Tag:      "cfp",
-			Label:    "Cfp",
+			Tag:      "cpf",
+			Label:    "Cpf",
 			Required: true,
 			DataType: "cpf",
 		},

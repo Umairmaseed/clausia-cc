@@ -11,8 +11,8 @@ var Signer = assets.AssetType{
 		{
 			Required: true,
 			IsKey:    true,
-			Tag:      "id",
-			Label:    "id",
+			Tag:      "cpf",
+			Label:    "cpf",
 			DataType: "cpf",
 		},
 		{
