@@ -9,4 +9,5 @@ var CustomDataTypes = map[string]assets.DataType{
 	"sha256":     sha256,
 	"statusType": statusType,
 	"pemPubKey":  pemPubKey,
+	"cpf":        cpf,
 }

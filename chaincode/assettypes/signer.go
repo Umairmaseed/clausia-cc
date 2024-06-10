@@ -13,7 +13,7 @@ var Signer = assets.AssetType{
 			IsKey:    true,
 			Tag:      "id",
 			Label:    "id",
-			DataType: "string",
+			DataType: "cpf",
 		},
 		{
 			Tag:      "email",
