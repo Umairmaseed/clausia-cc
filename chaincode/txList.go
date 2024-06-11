@@ -13,4 +13,7 @@ var txList = []tx.Transaction{
 	txdefs.PutSignature,
 	txdefs.CancelDocument,
 	txdefs.CreateSigner,
+	txdefs.GetDoc,
+	txdefs.GetSignerKey,
+	txdefs.GetSigner,
 }

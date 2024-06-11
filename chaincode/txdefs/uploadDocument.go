@@ -132,7 +132,7 @@ var UploadDocument = tx.Transaction{
 			return nil, errors.WrapError(err, "failed to create asset")
 		}
 
-		res, err := document.PutNew(stub)
+		res, err := document.Put(stub)
 		if err != nil {
 			return nil, errors.WrapError(err, "failed to write asset to the ledger")
 		}
