@@ -72,6 +72,12 @@ var UploadDocument = tx.Transaction{
 			Label:    "signature",
 			DataType: "->signature",
 		},
+		{
+			Tag:      "owner",
+			Label:    "Owner",
+			DataType: "->signer",
+			Required: true,
+		},
 	},
 
 	Routine: func(stub *sw.StubWrapper, req map[string]interface{}) ([]byte, errors.ICCError) {
@@ -101,6 +107,10 @@ var UploadDocument = tx.Transaction{
 		if !ok {
 			return nil, errors.NewCCError("Failed to get name parameter", 400)
 		}
+		owner, ok := req["owner"].(assets.Key)
+		if !ok {
+			return nil, errors.NewCCError("Failed to get owner parameter", 400)
+		}
 
 		doc := map[string]interface{}{
 			"@assetType":           "document",
@@ -110,6 +120,7 @@ var UploadDocument = tx.Transaction{
 			"successfulSignatures": successfulSignatures,
 			"originalDocURL":       originalDocURL,
 			"name":                 name,
+			"owner":                owner,
 		}
 		if finalHash, ok := req["finalHash"].(string); ok && finalHash != "" {
 			doc["finalHash"] = finalHash
