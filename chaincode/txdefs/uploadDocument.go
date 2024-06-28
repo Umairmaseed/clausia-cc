@@ -78,6 +78,11 @@ var UploadDocument = tx.Transaction{
 			DataType: "->signer",
 			Required: true,
 		},
+		{
+			Tag:      "timeout",
+			Label:    "Timeout",
+			DataType: "datetime",
+		},
 	},
 
 	Routine: func(stub *sw.StubWrapper, req map[string]interface{}) ([]byte, errors.ICCError) {
@@ -111,6 +116,7 @@ var UploadDocument = tx.Transaction{
 		if !ok {
 			return nil, errors.NewCCError("Failed to get owner parameter", 400)
 		}
+		timeout := req["timeout"]
 
 		doc := map[string]interface{}{
 			"@assetType":           "document",
@@ -121,6 +127,7 @@ var UploadDocument = tx.Transaction{
 			"originalDocURL":       originalDocURL,
 			"name":                 name,
 			"owner":                owner,
+			"timeout":              timeout,
 		}
 		if finalHash, ok := req["finalHash"].(string); ok && finalHash != "" {
 			doc["finalHash"] = finalHash
