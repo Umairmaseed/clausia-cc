@@ -70,5 +70,10 @@ var Document = assets.AssetType{
 			DataType: "->signer",
 			Required: true,
 		},
+		{
+			Tag:      "timeout",
+			Label:    "Timeout",
+			DataType: "datetime",
+		},
 	},
 }

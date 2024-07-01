@@ -16,4 +16,5 @@ var txList = []tx.Transaction{
 	txdefs.GetDoc,
 	txdefs.GetSignerKey,
 	txdefs.GetSigner,
+	txdefs.GetExpiredDoc,
 }
