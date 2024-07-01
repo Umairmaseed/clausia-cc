@@ -64,5 +64,11 @@ var Document = assets.AssetType{
 			Label:    "signature",
 			DataType: "->signature",
 		},
+		{
+			Tag:      "owner",
+			Label:    "Owner",
+			DataType: "->signer",
+			Required: true,
+		},
 	},
 }
