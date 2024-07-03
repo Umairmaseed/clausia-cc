@@ -19,4 +19,5 @@ var txList = []tx.Transaction{
 	txdefs.GetExpiredDoc,
 	txdefs.UpdateDocument,
 	txdefs.UpdateSigner,
+	txdefs.ExpectedUserDoc,
 }
