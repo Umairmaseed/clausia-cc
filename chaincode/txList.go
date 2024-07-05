@@ -20,4 +20,5 @@ var txList = []tx.Transaction{
 	txdefs.UpdateDocument,
 	txdefs.UpdateSigner,
 	txdefs.ExpectedUserDoc,
+	txdefs.GetDocHistory,
 }
