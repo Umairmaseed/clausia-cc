@@ -3,7 +3,6 @@ package txdefs
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/hyperledger-labs/cc-tools/assets"
 	"github.com/hyperledger-labs/cc-tools/errors"
@@ -43,49 +42,31 @@ var ExpectedUserDoc = tx.Transaction{
 			return nil, errors.NewCCError("Invalid signer key", http.StatusBadRequest)
 		}
 
-		// Check if status is provided and convert it to string
-		statusStr := ""
-		if status, statusOk := req["status"].(datatypes.StatusType); statusOk {
-			statusStr = strconv.Itoa(int(status))
+		status, statusOk := req["status"].(datatypes.StatusType)
+
+		query := map[string]interface{}{
+			"selector": map[string]interface{}{
+				"@assetType": "document",
+				"requiredSignatures": map[string]interface{}{
+					"$elemMatch": map[string]interface{}{
+						"$eq": map[string]interface{}{
+							"@assetType": "signer",
+							"@key":       signerKey,
+						},
+					},
+				},
+			},
 		}
 
-		// Construct the query string based on whether status is available
-		queryString := `{"selector":{"@assetType":"document","requiredSignatures":{"$elemMatch":{"$eq":{"@assetType":"signer","@key":"` + signerKey + `"}}}`
-		if statusStr != "" {
-			queryString += `,"status":` + statusStr
-		}
-		queryString += `}}`
-
-		resultsIterator, err := stub.GetQueryResult(queryString)
-		if err != nil {
-			return nil, errors.WrapErrorWithStatus(err, "failed to get query result", http.StatusInternalServerError)
-		}
-		defer resultsIterator.Close()
-
-		// Collect the results
-		var searchResult []map[string]interface{}
-		for resultsIterator.HasNext() {
-			queryResponse, err := resultsIterator.Next()
-			if err != nil {
-				return nil, errors.WrapErrorWithStatus(err, "error iterating query response", http.StatusInternalServerError)
-			}
-
-			var data map[string]interface{}
-			err = json.Unmarshal(queryResponse.Value, &data)
-			if err != nil {
-				return nil, errors.WrapErrorWithStatus(err, "failed to unmarshal query response value", http.StatusInternalServerError)
-			}
-
-			searchResult = append(searchResult, data)
+		if statusOk {
+			query["selector"].(map[string]interface{})["status"] = status
 		}
 
 		// Prepare the response
-		response := struct {
-			Result []map[string]interface{} `json:"result"`
-		}{
-			Result: searchResult,
+		response, err := assets.Search(stub, query, "", true)
+		if err != nil {
+			return nil, errors.WrapErrorWithStatus(err, "error searching for document", http.StatusInternalServerError)
 		}
-
 		responseJSON, errr := json.Marshal(response)
 		if errr != nil {
 			return nil, errors.WrapErrorWithStatus(err, "error marshaling response", http.StatusInternalServerError)
