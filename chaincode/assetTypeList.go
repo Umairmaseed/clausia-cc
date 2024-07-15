@@ -9,5 +9,4 @@ var assetTypeList = []assets.AssetType{
 	assettypes.Secret,
 	assettypes.Signer,
 	assettypes.Document,
-	assettypes.Signature,
 }
