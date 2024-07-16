@@ -1,4 +1,4 @@
-package assettypes
+package documentassettypes
 
 import "github.com/hyperledger-labs/cc-tools/assets"
 
