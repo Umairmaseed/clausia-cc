@@ -44,7 +44,7 @@ var Clause = assets.AssetType{
 		{
 			Tag:      "dependencies",
 			Label:    "Dependencies",
-			DataType: "[]->clauses",
+			DataType: "[]->clause",
 		},
 		{
 			Required: true,

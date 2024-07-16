@@ -24,7 +24,7 @@ var AutoExecutableContract = assets.AssetType{
 		{
 			Tag:      "clauses",
 			Label:    "Clauses",
-			DataType: "[]->clauses",
+			DataType: "[]->clause",
 		},
 		{
 			Tag:      "data",
