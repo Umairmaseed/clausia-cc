@@ -68,11 +68,6 @@ var UploadDocument = tx.Transaction{
 			Required: true,
 		},
 		{
-			Tag:      "signature",
-			Label:    "signature",
-			DataType: "->signature",
-		},
-		{
 			Tag:      "owner",
 			Label:    "Owner",
 			DataType: "->signer",

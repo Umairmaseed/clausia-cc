@@ -1,4 +1,4 @@
-package assettypes
+package documentassettypes
 
 import "github.com/hyperledger-labs/cc-tools/assets"
 
@@ -58,11 +58,6 @@ var Document = assets.AssetType{
 			Label:    "name",
 			DataType: "string",
 			Required: true,
-		},
-		{
-			Tag:      "signature",
-			Label:    "signature",
-			DataType: "->signature",
 		},
 		{
 			Tag:      "owner",
