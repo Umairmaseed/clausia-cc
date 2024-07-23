@@ -1,4 +1,4 @@
-package txdefs
+package document
 
 import (
 	"encoding/json"
@@ -11,17 +11,17 @@ import (
 )
 
 // GetDoc retrieves a document by its key
-var GetDoc = tx.Transaction{
-	Tag:         "getDoc",
-	Label:       "Get Document",
-	Description: "Retrieves a document by key",
+var GetSigner = tx.Transaction{
+	Tag:         "getSigner",
+	Label:       "Get Signer",
+	Description: "Retrieves a Signer by key",
 	Method:      "GET",
 
 	Args: []tx.Argument{
 		{
 			Tag:         "key",
-			Label:       "Document Key",
-			Description: "The key of the document to retrieve",
+			Label:       "Signer Key",
+			Description: "The key of the Signer to retrieve",
 			DataType:    "@object",
 			Required:    true,
 		},
@@ -38,7 +38,7 @@ var GetDoc = tx.Transaction{
 
 		response, err := assets.Search(stub, query, "", true)
 		if err != nil {
-			return nil, errors.WrapErrorWithStatus(err, "error searching for document", http.StatusInternalServerError)
+			return nil, errors.WrapErrorWithStatus(err, "error searching for Signer", http.StatusInternalServerError)
 		}
 
 		responseJSON, er := json.Marshal(response)

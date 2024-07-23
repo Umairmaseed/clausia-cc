@@ -1,4 +1,4 @@
-package txdefs
+package document
 
 import (
 	"encoding/json"

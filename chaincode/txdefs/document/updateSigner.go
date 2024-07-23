@@ -1,4 +1,4 @@
-package txdefs
+package document
 
 import (
 	"encoding/json"
@@ -9,18 +9,18 @@ import (
 	tx "github.com/hyperledger-labs/cc-tools/transactions"
 )
 
-var UpdateDocument = tx.Transaction{
-	Tag:         "updateDocument",
-	Label:       "Update Document",
+var UpdateSigner = tx.Transaction{
+	Tag:         "updateSigner",
+	Label:       "Update Signer",
 	Description: "",
 	Method:      "POST",
 
 	Args: []tx.Argument{
 		{
-			Tag:      "document",
-			Label:    "Document",
+			Tag:      "signer",
+			Label:    "Signer",
 			Required: true,
-			DataType: "->document",
+			DataType: "->signer",
 		},
 		{
 			Tag:      "updates",
@@ -30,17 +30,17 @@ var UpdateDocument = tx.Transaction{
 		},
 	},
 	Routine: func(stub *sw.StubWrapper, req map[string]interface{}) ([]byte, errors.ICCError) {
-		documentKey, ok := req["document"].(assets.Key)
+		signerKey, ok := req["signer"].(assets.Key)
 		if !ok {
-			return nil, errors.WrapError(nil, "Parameter 'document' must be an asset")
+			return nil, errors.WrapError(nil, "Parameter 'signer' must be an asset")
 		}
 
-		documentAsset, err := documentKey.Get(stub)
+		signerAsset, err := signerKey.Get(stub)
 		if err != nil {
-			return nil, errors.WrapError(err, "Failed to get document asset from the ledger")
+			return nil, errors.WrapError(err, "Failed to get signer asset from the ledger")
 		}
 
-		documentMap := *documentAsset
+		signerMap := *signerAsset
 
 		updates, ok := req["updates"].(map[string]interface{})
 		if !ok {
@@ -48,12 +48,12 @@ var UpdateDocument = tx.Transaction{
 		}
 
 		for key, value := range updates {
-			documentMap[key] = value
+			signerMap[key] = value
 		}
 
-		updatedDocument, err := documentKey.Update(stub, documentMap)
+		updatedDocument, err := signerKey.Update(stub, signerMap)
 		if err != nil {
-			return nil, errors.WrapError(err, "Failed to update document asset in the ledger")
+			return nil, errors.WrapError(err, "Failed to update signer asset in the ledger")
 		}
 
 		updatedDocumentJSON, e := json.Marshal(updatedDocument)
