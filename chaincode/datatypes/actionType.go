@@ -53,7 +53,7 @@ var actionType = assets.DataType{
 			dataVal = v
 		case int:
 			dataVal = (float64)(v)
-		case StatusType:
+		case ActionType:
 			dataVal = (float64)(v)
 		case string:
 			var err error

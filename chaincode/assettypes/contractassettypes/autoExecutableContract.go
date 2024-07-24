@@ -31,5 +31,11 @@ var AutoExecutableContract = assets.AssetType{
 			Label:    "Data",
 			DataType: "@object",
 		},
+		{
+			Required: true,
+			Tag:      "owner",
+			Label:    "Owner",
+			DataType: "->signer",
+		},
 	},
 }
