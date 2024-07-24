@@ -1,0 +1,149 @@
+package contract
+
+import (
+	"encoding/json"
+
+	"github.com/hyperledger-labs/cc-tools/assets"
+	"github.com/hyperledger-labs/cc-tools/errors"
+	sw "github.com/hyperledger-labs/cc-tools/stubwrapper"
+	tx "github.com/hyperledger-labs/cc-tools/transactions"
+)
+
+var AddClause = tx.Transaction{
+	Tag:         "addClause",
+	Label:       "Add Clause",
+	Description: "",
+	Method:      "POST",
+
+	Args: []tx.Argument{
+		{
+			Required: true,
+			Tag:      "autoExecutableContract",
+			Label:    "Auto Executable Contract",
+			DataType: "->autoExecutableContract",
+		},
+		{
+			Required: true,
+			Tag:      "id",
+			Label:    "Id",
+			DataType: "string",
+		},
+		{
+			Tag:      "description",
+			Label:    "Description",
+			DataType: "string",
+		},
+		{
+			Tag:      "category",
+			Label:    "Category",
+			DataType: "string",
+		},
+		{
+			Tag:      "parameters",
+			Label:    "Parameters",
+			DataType: "@object",
+		},
+		{
+			Tag:      "input",
+			Label:    "Input",
+			DataType: "@object",
+		},
+		{
+			Required: true,
+			Tag:      "executable",
+			Label:    "Executable",
+			DataType: "boolean",
+		},
+		{
+			Tag:      "dependencies",
+			Label:    "Dependencies",
+			DataType: "[]->clause",
+		},
+		{
+			Required: true,
+			Tag:      "actionType",
+			Label:    "Action Type",
+			DataType: "actionType",
+		},
+		{
+			Tag:      "finalized",
+			Label:    "Finalized",
+			DataType: "boolean",
+		},
+		{
+			Tag:      "result",
+			Label:    "Result",
+			DataType: "@object",
+		},
+	},
+	Routine: func(stub *sw.StubWrapper, req map[string]interface{}) ([]byte, errors.ICCError) {
+		clause := map[string]interface{}{
+			"@assetType": "clause",
+			"id":         req["id"],
+			"executable": req["executable"],
+			"actionType": req["actionType"],
+		}
+
+		if description, ok := req["description"].(string); ok {
+			clause["description"] = description
+		}
+		if category, ok := req["category"].(string); ok {
+			clause["category"] = category
+		}
+		if parameters, ok := req["parameters"].(map[string]interface{}); ok {
+			clause["parameters"] = parameters
+		}
+		if input, ok := req["input"].(map[string]interface{}); ok {
+			clause["input"] = input
+		}
+		if dependencies, ok := req["dependencies"].([]interface{}); ok {
+			clause["dependencies"] = dependencies
+		}
+		if finalized, ok := req["finalized"].(bool); ok {
+			clause["finalized"] = finalized
+		}
+		if result, ok := req["result"].(map[string]interface{}); ok {
+			clause["result"] = result
+		}
+
+		newClause, err := assets.NewAsset(clause)
+		if err != nil {
+			return nil, errors.WrapError(err, "Failed to create clause asset")
+		}
+
+		clauseAsset, err := newClause.PutNew(stub)
+		if err != nil {
+			return nil, errors.WrapError(err, "Failed to save clause asset on ledger")
+		}
+
+		contractKey, ok := req["autoExecutableContract"].(assets.Key)
+		if !ok {
+			return nil, errors.WrapError(nil, "Parameter 'autoExecutableContract' must be an asset key")
+		}
+
+		contract, err := contractKey.Get(stub)
+		if err != nil {
+			return nil, errors.WrapError(err, "Failed to get autoExecutableContract asset from ledger")
+		}
+
+		clauses, exists := (*contract)["clauses"].([]interface{})
+		if !exists {
+			clauses = make([]interface{}, 0)
+		}
+		clauses = append(clauses, clauseAsset)
+
+		updatedContract, err := contractKey.Update(stub, map[string]interface{}{
+			"clauses": clauses,
+		})
+		if err != nil {
+			return nil, errors.WrapError(err, "Failed to update contract asset with new clause")
+		}
+
+		responseJSON, nerr := json.Marshal(updatedContract)
+		if nerr != nil {
+			return nil, errors.WrapError(err, "Failed to marshal response to JSON format")
+		}
+
+		return responseJSON, nil
+	},
+}
