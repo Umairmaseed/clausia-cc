@@ -2,6 +2,7 @@ package main
 
 import (
 	tx "github.com/hyperledger-labs/cc-tools/transactions"
+	"github.com/hyperledger-labs/goprocess-cc/chaincode/txdefs/contract"
 	"github.com/hyperledger-labs/goprocess-cc/chaincode/txdefs/document"
 )
 
@@ -23,4 +24,8 @@ var txList = []tx.Transaction{
 	document.UpdateSigner,
 	document.ExpectedUserDoc,
 	document.GetDocHistory,
+
+	contract.CreateAutoExecutableContract,
+	contract.AddClause,
+	contract.RemoveClause,
 }
