@@ -59,7 +59,7 @@ var CreateAutoExecutableContract = tx.Transaction{
 		}
 
 		contract := map[string]interface{}{
-			"@assetType":    "contract",
+			"@assetType":    "autoExecutableContract",
 			"name":          name,
 			"signatureDate": signatureDate,
 			"owner":         owner,
