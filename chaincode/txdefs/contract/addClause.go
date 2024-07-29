@@ -60,16 +60,6 @@ var AddClause = tx.Transaction{
 			Label:    "Action Type",
 			DataType: "actionType",
 		},
-		{
-			Tag:      "finalized",
-			Label:    "Finalized",
-			DataType: "boolean",
-		},
-		{
-			Tag:      "result",
-			Label:    "Result",
-			DataType: "@object",
-		},
 	},
 	Routine: func(stub *sw.StubWrapper, req map[string]interface{}) ([]byte, errors.ICCError) {
 		actionType, _ := req["actionType"].(datatypes.ActionType)
@@ -79,6 +69,7 @@ var AddClause = tx.Transaction{
 			"id":         req["id"],
 			"actionType": actionType,
 			"executable": true,
+			"finalized":  false,
 		}
 
 		if description, ok := req["description"].(string); ok {
@@ -95,12 +86,6 @@ var AddClause = tx.Transaction{
 		}
 		if dependencies, ok := req["dependencies"].([]interface{}); ok {
 			clause["dependencies"] = dependencies
-		}
-		if finalized, ok := req["finalized"].(bool); ok {
-			clause["finalized"] = finalized
-		}
-		if result, ok := req["result"].(map[string]interface{}); ok {
-			clause["result"] = result
 		}
 
 		if actionType == datatypes.NonExecutable {
