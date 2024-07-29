@@ -8,6 +8,7 @@ import (
 	sw "github.com/hyperledger-labs/cc-tools/stubwrapper"
 	tx "github.com/hyperledger-labs/cc-tools/transactions"
 	"github.com/hyperledger-labs/goprocess-cc/chaincode/datatypes"
+	"github.com/hyperledger-labs/goprocess-cc/chaincode/utils"
 )
 
 var AddClause = tx.Transaction{
@@ -78,11 +79,8 @@ var AddClause = tx.Transaction{
 		if category, ok := req["category"].(string); ok {
 			clause["category"] = category
 		}
-		if parameters, ok := req["parameters"].(map[string]interface{}); ok {
-			clause["parameters"] = parameters
-		}
 		if input, ok := req["input"].(map[string]interface{}); ok {
-			clause["input"] = input
+			clause["input"] = utils.ValidateAndCleanData(input)
 		}
 		if dependencies, ok := req["dependencies"].([]interface{}); ok {
 			clause["dependencies"] = dependencies
@@ -90,6 +88,10 @@ var AddClause = tx.Transaction{
 
 		if actionType == datatypes.NonExecutable {
 			clause["executable"] = false
+		}
+
+		if parameters, ok := req["parameters"].(map[string]interface{}); ok {
+			clause["parameters"] = utils.ValidateAndCleanData(parameters)
 		}
 
 		newClause, err := assets.NewAsset(clause)
