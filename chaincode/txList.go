@@ -29,4 +29,5 @@ var txList = []tx.Transaction{
 	contract.AddClause,
 	contract.RemoveClause,
 	contract.AddClauses,
+	contract.AddParticipants,
 }

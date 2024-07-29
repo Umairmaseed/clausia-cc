@@ -37,5 +37,10 @@ var AutoExecutableContract = assets.AssetType{
 			Label:    "Owner",
 			DataType: "->user",
 		},
+		{
+			Tag:      "participants",
+			Label:    "Participants",
+			DataType: "[]->user",
+		},
 	},
 }
