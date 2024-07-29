@@ -11,28 +11,28 @@ import (
 type ActionType float64
 
 const (
-	checkDateInterval ActionType = iota
-	getDeduction
-	getCredit
-	payment
-	finishContract
+	CheckDateInterval ActionType = iota
+	GetDeduction
+	GetCredit
+	Payment
+	FinishContract
 
-	nonExecutable ActionType = -1
+	NonExecutable ActionType = -1
 )
 
 func (b ActionType) CheckType() errors.ICCError {
 	switch b {
-	case checkDateInterval:
+	case CheckDateInterval:
 		return nil
-	case getDeduction:
+	case GetDeduction:
 		return nil
-	case getCredit:
+	case GetCredit:
 		return nil
-	case payment:
+	case Payment:
 		return nil
-	case finishContract:
+	case FinishContract:
 		return nil
-	case nonExecutable:
+	case NonExecutable:
 		return nil
 	default:
 		return errors.NewCCError("invalid type", 400)
@@ -43,12 +43,12 @@ func (b ActionType) CheckType() errors.ICCError {
 var actionType = assets.DataType{
 	AcceptedFormats: []string{"number"},
 	DropDownValues: map[string]interface{}{
-		"check date interval": checkDateInterval,
-		"get Deduction":       getDeduction,
-		"get Credit":          getCredit,
-		"payment":             payment,
-		"finish contract":     finishContract,
-		"non executable":      nonExecutable,
+		"check date interval": CheckDateInterval,
+		"get Deduction":       GetDeduction,
+		"get Credit":          GetCredit,
+		"payment":             Payment,
+		"finish contract":     FinishContract,
+		"non executable":      NonExecutable,
 	},
 	Description: "action type for clause",
 	Parse: func(data interface{}) (string, interface{}, errors.ICCError) {

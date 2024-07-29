@@ -7,6 +7,7 @@ import (
 	"github.com/hyperledger-labs/cc-tools/errors"
 	sw "github.com/hyperledger-labs/cc-tools/stubwrapper"
 	tx "github.com/hyperledger-labs/cc-tools/transactions"
+	"github.com/hyperledger-labs/goprocess-cc/chaincode/datatypes"
 )
 
 var AddClause = tx.Transaction{
@@ -49,12 +50,6 @@ var AddClause = tx.Transaction{
 			DataType: "@object",
 		},
 		{
-			Required: true,
-			Tag:      "executable",
-			Label:    "Executable",
-			DataType: "boolean",
-		},
-		{
 			Tag:      "dependencies",
 			Label:    "Dependencies",
 			DataType: "[]->clause",
@@ -77,11 +72,13 @@ var AddClause = tx.Transaction{
 		},
 	},
 	Routine: func(stub *sw.StubWrapper, req map[string]interface{}) ([]byte, errors.ICCError) {
+		actionType, _ := req["actionType"].(datatypes.ActionType)
+
 		clause := map[string]interface{}{
 			"@assetType": "clause",
 			"id":         req["id"],
-			"executable": req["executable"],
-			"actionType": req["actionType"],
+			"actionType": actionType,
+			"executable": true,
 		}
 
 		if description, ok := req["description"].(string); ok {
@@ -104,6 +101,10 @@ var AddClause = tx.Transaction{
 		}
 		if result, ok := req["result"].(map[string]interface{}); ok {
 			clause["result"] = result
+		}
+
+		if actionType == datatypes.NonExecutable {
+			clause["executable"] = false
 		}
 
 		newClause, err := assets.NewAsset(clause)
