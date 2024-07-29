@@ -7,7 +7,6 @@ import (
 	"github.com/hyperledger-labs/cc-tools/errors"
 	sw "github.com/hyperledger-labs/cc-tools/stubwrapper"
 	tx "github.com/hyperledger-labs/cc-tools/transactions"
-	"github.com/hyperledger-labs/goprocess-cc/chaincode/datatypes"
 	"github.com/hyperledger-labs/goprocess-cc/chaincode/utils"
 )
 
@@ -63,7 +62,7 @@ var AddClause = tx.Transaction{
 		},
 	},
 	Routine: func(stub *sw.StubWrapper, req map[string]interface{}) ([]byte, errors.ICCError) {
-		actionType, _ := req["actionType"].(datatypes.ActionType)
+		actionType := req["actionType"].(float64)
 
 		clause := map[string]interface{}{
 			"@assetType": "clause",
@@ -83,7 +82,7 @@ var AddClause = tx.Transaction{
 			clause["input"] = utils.ValidateAndCleanData(input)
 		}
 
-		if actionType == datatypes.NonExecutable {
+		if actionType == float64(-1) {
 			clause["executable"] = false
 		}
 

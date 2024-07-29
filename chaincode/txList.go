@@ -28,4 +28,5 @@ var txList = []tx.Transaction{
 	contract.CreateAutoExecutableContract,
 	contract.AddClause,
 	contract.RemoveClause,
+	contract.AddClauses,
 }
