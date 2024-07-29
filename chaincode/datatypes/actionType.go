@@ -16,6 +16,8 @@ const (
 	getCredit
 	payment
 	finishContract
+
+	nonExecutable ActionType = -1
 )
 
 func (b ActionType) CheckType() errors.ICCError {
@@ -29,6 +31,8 @@ func (b ActionType) CheckType() errors.ICCError {
 	case payment:
 		return nil
 	case finishContract:
+		return nil
+	case nonExecutable:
 		return nil
 	default:
 		return errors.NewCCError("invalid type", 400)
@@ -44,6 +48,7 @@ var actionType = assets.DataType{
 		"get Credit":          getCredit,
 		"payment":             payment,
 		"finish contract":     finishContract,
+		"non executable":      nonExecutable,
 	},
 	Description: "action type for clause",
 	Parse: func(data interface{}) (string, interface{}, errors.ICCError) {
