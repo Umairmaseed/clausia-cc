@@ -82,9 +82,6 @@ var AddClause = tx.Transaction{
 		if input, ok := req["input"].(map[string]interface{}); ok {
 			clause["input"] = utils.ValidateAndCleanData(input)
 		}
-		if dependencies, ok := req["dependencies"].([]interface{}); ok {
-			clause["dependencies"] = dependencies
-		}
 
 		if actionType == datatypes.NonExecutable {
 			clause["executable"] = false
@@ -92,16 +89,6 @@ var AddClause = tx.Transaction{
 
 		if parameters, ok := req["parameters"].(map[string]interface{}); ok {
 			clause["parameters"] = utils.ValidateAndCleanData(parameters)
-		}
-
-		newClause, err := assets.NewAsset(clause)
-		if err != nil {
-			return nil, errors.WrapError(err, "Failed to create clause asset")
-		}
-
-		clauseAsset, err := newClause.PutNew(stub)
-		if err != nil {
-			return nil, errors.WrapError(err, "Failed to save clause asset on ledger")
 		}
 
 		contractKey, ok := req["autoExecutableContract"].(assets.Key)
@@ -118,6 +105,26 @@ var AddClause = tx.Transaction{
 		if !exists {
 			clauses = make([]interface{}, 0)
 		}
+		mapOfCurrClauses := utils.GenMapOfCurrClauses(clauses)
+
+		if dependencies, ok := req["dependencies"].([]interface{}); ok {
+			removedUnexistingClause, err := utils.RemoveUnexisting(dependencies, mapOfCurrClauses, stub)
+			if err != nil {
+				return nil, errors.WrapError(err, "failed to removed unexisting clauses")
+			}
+			clause["dependencies"] = removedUnexistingClause
+		}
+
+		newClause, err := assets.NewAsset(clause)
+		if err != nil {
+			return nil, errors.WrapError(err, "Failed to create clause asset")
+		}
+
+		clauseAsset, err := newClause.PutNew(stub)
+		if err != nil {
+			return nil, errors.WrapError(err, "Failed to save clause asset on ledger")
+		}
+
 		clauses = append(clauses, clauseAsset)
 
 		updatedContract, err := contractKey.Update(stub, map[string]interface{}{
