@@ -20,7 +20,7 @@ var UpdateSigner = tx.Transaction{
 			Tag:      "signer",
 			Label:    "Signer",
 			Required: true,
-			DataType: "->signer",
+			DataType: "->user",
 		},
 		{
 			Tag:      "updates",

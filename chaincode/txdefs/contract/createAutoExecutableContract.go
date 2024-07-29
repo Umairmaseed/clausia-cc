@@ -42,7 +42,7 @@ var CreateAutoExecutableContract = tx.Transaction{
 			Required: true,
 			Tag:      "owner",
 			Label:    "Owner",
-			DataType: "->signer",
+			DataType: "->user",
 		},
 	},
 	Routine: func(stub *sw.StubWrapper, req map[string]interface{}) ([]byte, errors.ICCError) {

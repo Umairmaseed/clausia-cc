@@ -64,7 +64,7 @@ var CreateSigner = tx.Transaction{
 		}
 
 		signer := map[string]interface{}{
-			"@assetType": "signer",
+			"@assetType": "user",
 			"cpf":        cpf,
 			"email":      email,
 			"name":       name,
@@ -73,12 +73,12 @@ var CreateSigner = tx.Transaction{
 
 		newSigner, err := assets.NewAsset(signer)
 		if err != nil {
-			return nil, errors.WrapError(err, "failed to create signer asset")
+			return nil, errors.WrapError(err, "failed to create user asset")
 		}
 
 		res, err := newSigner.PutNew(stub)
 		if err != nil {
-			return nil, errors.WrapError(err, "failed to write signer asset to the ledger")
+			return nil, errors.WrapError(err, "failed to write user asset to the ledger")
 		}
 
 		resBytes, e := json.Marshal(res)

@@ -9,16 +9,16 @@ import (
 	tx "github.com/hyperledger-labs/cc-tools/transactions"
 )
 
-var GetSignerKey = tx.Transaction{
-	Tag:         "getSignerKey",
-	Label:       "Get Signer Key",
-	Description: "Retrieves the key of the signer by CPF",
+var GetUserKey = tx.Transaction{
+	Tag:         "getUserKey",
+	Label:       "Get User Key",
+	Description: "Retrieves the key of the User by CPF",
 	Method:      "GET",
 
 	Args: []tx.Argument{
 		{
 			Tag:         "cpf",
-			Description: "CPF of the signer",
+			Description: "CPF of the User",
 			DataType:    "cpf",
 			Required:    true,
 		},
@@ -27,7 +27,7 @@ var GetSignerKey = tx.Transaction{
 		cpf := req["cpf"]
 
 		fields := map[string]interface{}{
-			"@assetType": "signer",
+			"@assetType": "user",
 			"cpf":        cpf,
 		}
 

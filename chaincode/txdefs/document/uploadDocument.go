@@ -37,18 +37,18 @@ var UploadDocument = tx.Transaction{
 		{
 			Tag:      "requiredSignatures",
 			Label:    "requiredSignatures",
-			DataType: "[]->signer",
+			DataType: "[]->user",
 			Required: true,
 		},
 		{
 			Tag:      "successfulSignatures",
 			Label:    "successfulSignatures",
-			DataType: "[]->signer",
+			DataType: "[]->user",
 		},
 		{
 			Tag:      "rejectedSignatures",
 			Label:    "rejectedSignatures",
-			DataType: "[]->signer",
+			DataType: "[]->user",
 		},
 		{
 			Tag:      "originalDocURL",
@@ -70,7 +70,7 @@ var UploadDocument = tx.Transaction{
 		{
 			Tag:      "owner",
 			Label:    "Owner",
-			DataType: "->signer",
+			DataType: "->user",
 			Required: true,
 		},
 		{

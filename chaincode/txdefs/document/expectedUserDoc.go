@@ -22,7 +22,7 @@ var ExpectedUserDoc = tx.Transaction{
 			Tag:      "signer",
 			Label:    "Signer",
 			Required: true,
-			DataType: "->signer",
+			DataType: "->user",
 		},
 		{
 			Tag:      "status",
@@ -50,7 +50,7 @@ var ExpectedUserDoc = tx.Transaction{
 				"requiredSignatures": map[string]interface{}{
 					"$elemMatch": map[string]interface{}{
 						"$eq": map[string]interface{}{
-							"@assetType": "signer",
+							"@assetType": "user",
 							"@key":       signerKey,
 						},
 					},
