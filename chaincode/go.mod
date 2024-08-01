@@ -10,6 +10,7 @@ require (
 	github.com/hyperledger/fabric-chaincode-go v0.0.0-20210603161043-af0e3898842a
 	github.com/hyperledger/fabric-protos-go v0.0.0-20210528200356-82833ecdac31
 	github.com/mitchellh/mapstructure v1.3.2 // indirect
+	github.com/mozillazg/go-unidecode v0.2.0
 	github.com/pelletier/go-toml v1.8.0 // indirect
 	github.com/spf13/afero v1.3.1 // indirect
 	github.com/spf13/cast v1.3.1 // indirect

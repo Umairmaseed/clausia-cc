@@ -1,0 +1,32 @@
+package params
+
+import (
+	"github.com/hyperledger-labs/cc-tools/errors"
+	"github.com/hyperledger-labs/goprocess-cc/chaincode/datatypes"
+	"github.com/hyperledger-labs/goprocess-cc/chaincode/txdefs/contract/models"
+)
+
+type param interface {
+	Type() datatypes.ActionType
+
+	Execute(args interface{}) (*models.Result, bool, errors.ICCError)
+
+	GetParameters() interface{}
+
+	GetInputs() interface{}
+}
+
+type Output struct {
+	Name  string
+	Type  string
+	Label string
+}
+
+func Get(actionType datatypes.ActionType) param {
+	switch actionType {
+	case datatypes.CheckDateInterval:
+		return &CheckDateInterval{}
+	default:
+		return nil // to be changed according to non executable action type
+	}
+}

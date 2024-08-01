@@ -11,4 +11,5 @@ var CustomDataTypes = map[string]assets.DataType{
 	"pemPubKey":  pemPubKey,
 	"cpf":        cpf,
 	"actionType": actionType,
+	"argDt":      argDt,
 }
