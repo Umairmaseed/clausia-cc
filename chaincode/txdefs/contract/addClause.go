@@ -65,9 +65,9 @@ var AddClause = tx.Transaction{
 		},
 	},
 	Routine: func(stub *sw.StubWrapper, req map[string]interface{}) ([]byte, errors.ICCError) {
-		actionTypeFloat, ok := req["actionType"].(float64)
+		actionTypeFloat, ok := req["actionType"].(datatypes.ActionType)
 		if !ok {
-			return nil, errors.WrapError(nil, "Invalid type for actionType; expected number")
+			return nil, errors.WrapError(nil, "Invalid type for actionType")
 		}
 		actionType := datatypes.ActionType(actionTypeFloat)
 
@@ -127,6 +127,7 @@ var AddClause = tx.Transaction{
 		mapOfCurrClauses := utils.GenMapOfCurrClauses(clauses)
 
 		if dependencies, ok := req["dependencies"].([]interface{}); ok {
+
 			removedUnexistingClause, err := utils.RemoveUnexisting(dependencies, mapOfCurrClauses, stub)
 			if err != nil {
 				return nil, errors.WrapError(err, "failed to removed unexisting clauses")

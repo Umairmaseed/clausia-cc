@@ -32,4 +32,6 @@ var txList = []tx.Transaction{
 	contract.AddParticipants,
 	contract.AddReferenceDateCDI,
 	contract.AddEvalutedDateCDI,
+	contract.ContractsWithExecutableClauses,
+	contract.ExecuteAutoExecutableContract,
 }

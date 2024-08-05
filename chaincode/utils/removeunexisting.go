@@ -22,19 +22,8 @@ func RemoveUnexisting(dependencies []interface{}, mapOfCurrClauses map[string]in
 
 		key, _ := (*clause)["@key"].(string)
 
-		found := false
-		for _, item := range mapOfCurrClauses {
-			currClause, ok := item.(map[string]interface{})
-			if !ok {
-				continue
-			}
-			if currKey, ok := currClause["@key"].(string); ok && currKey == key {
-				found = true
-				break
-			}
-		}
-
-		if found {
+		// Check if the key is present in the map of current clauses
+		if _, exists := mapOfCurrClauses[key]; exists {
 			newDependencies = append(newDependencies, depInterface)
 		}
 	}
