@@ -2,23 +2,31 @@ package main
 
 import (
 	tx "github.com/hyperledger-labs/cc-tools/transactions"
-	"github.com/hyperledger-labs/goprocess-cc/chaincode/txdefs"
+	"github.com/hyperledger-labs/goprocess-cc/chaincode/txdefs/contract"
+	"github.com/hyperledger-labs/goprocess-cc/chaincode/txdefs/document"
 )
 
 var txList = []tx.Transaction{
+
 	tx.CreateAsset,
 	tx.UpdateAsset,
 	tx.DeleteAsset,
-	txdefs.UploadDocument,
-	txdefs.PutSignature,
-	txdefs.CancelDocument,
-	txdefs.CreateSigner,
-	txdefs.GetDoc,
-	txdefs.GetSignerKey,
-	txdefs.GetSigner,
-	txdefs.GetExpiredDoc,
-	txdefs.UpdateDocument,
-	txdefs.UpdateSigner,
-	txdefs.ExpectedUserDoc,
-	txdefs.GetDocHistory,
+
+	document.CancelDocument,
+	document.UploadDocument,
+	document.PutSignature,
+	document.CreateSigner,
+	document.GetDoc,
+	document.GetSignerKey,
+	document.GetSigner,
+	document.GetExpiredDoc,
+	document.UpdateDocument,
+	document.UpdateSigner,
+	document.ExpectedUserDoc,
+	document.GetDocHistory,
+
+	contract.CreateAutoExecutableContract,
+	contract.AddClause,
+	contract.RemoveClause,
+	contract.AddClauses,
 }
