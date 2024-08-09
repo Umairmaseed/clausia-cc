@@ -24,8 +24,8 @@ var PutSignature = tx.Transaction{
 			DataType: "@asset",
 		},
 		{
-			Tag:      "signer",
-			Label:    "Signer",
+			Tag:      "user",
+			Label:    "User",
 			Required: true,
 			DataType: "@asset",
 		},
@@ -37,9 +37,9 @@ var PutSignature = tx.Transaction{
 			return nil, errors.NewCCError("Failed to get document parameter", 400)
 		}
 
-		signerAsset, ok := req["signer"].(assets.Asset)
+		signerAsset, ok := req["user"].(assets.Asset)
 		if !ok {
-			return nil, errors.NewCCError("Failed to get signer parameter", 400)
+			return nil, errors.NewCCError("Failed to get user parameter", 400)
 		}
 
 		documentKey, err := assets.NewKey(documentAsset)

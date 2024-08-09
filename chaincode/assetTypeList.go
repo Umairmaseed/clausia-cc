@@ -9,8 +9,10 @@ import (
 
 var assetTypeList = []assets.AssetType{
 	assettypes.Secret,
-	documentassettypes.Signer,
+	assettypes.User,
+
 	documentassettypes.Document,
+
 	contractassettypes.AutoExecutableContract,
 	contractassettypes.Clause,
 	contractassettypes.Deduction,

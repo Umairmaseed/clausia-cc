@@ -1,11 +1,11 @@
-package documentassettypes
+package assettypes
 
 import "github.com/hyperledger-labs/cc-tools/assets"
 
-var Signer = assets.AssetType{
-	Tag:         "signer",
-	Label:       "Signer",
-	Description: "Signer",
+var User = assets.AssetType{
+	Tag:         "user",
+	Label:       "User",
+	Description: "User",
 
 	Props: []assets.AssetProp{
 		{

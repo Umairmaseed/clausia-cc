@@ -17,7 +17,7 @@ var txList = []tx.Transaction{
 	document.PutSignature,
 	document.CreateSigner,
 	document.GetDoc,
-	document.GetSignerKey,
+	document.GetUserKey,
 	document.GetSigner,
 	document.GetExpiredDoc,
 	document.UpdateDocument,
@@ -29,4 +29,5 @@ var txList = []tx.Transaction{
 	contract.AddClause,
 	contract.RemoveClause,
 	contract.AddClauses,
+	contract.AddParticipants,
 }

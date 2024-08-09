@@ -42,7 +42,12 @@ var CreateAutoExecutableContract = tx.Transaction{
 			Required: true,
 			Tag:      "owner",
 			Label:    "Owner",
-			DataType: "->signer",
+			DataType: "->user",
+		},
+		{
+			Tag:      "participants",
+			Label:    "Participants",
+			DataType: "[]->user",
 		},
 	},
 	Routine: func(stub *sw.StubWrapper, req map[string]interface{}) ([]byte, errors.ICCError) {
@@ -67,6 +72,9 @@ var CreateAutoExecutableContract = tx.Transaction{
 
 		if clauses, ok := req["clauses"].([]interface{}); ok {
 			contract["clauses"] = clauses
+		}
+		if participants, ok := req["participants"].([]interface{}); ok {
+			contract["participants"] = participants
 		}
 		if data, ok := req["data"].(map[string]interface{}); ok {
 			contract["data"] = data
