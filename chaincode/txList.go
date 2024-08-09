@@ -30,4 +30,6 @@ var txList = []tx.Transaction{
 	contract.RemoveClause,
 	contract.AddClauses,
 	contract.AddParticipants,
+	contract.AddReferenceDateCDI,
+	contract.AddEvalutedDateCDI,
 }
