@@ -16,14 +16,14 @@ const (
 type CalculateCreditParam struct {
 	ImposeCredit    bool    `json:"imposeCredit"`
 	CreditName      string  `json:"creditName"`
-	Percentage      float64 `json:"percentage,omitempty"`
-	PredefinedValue float64 `json:"predefinedValue,omitempty"`
+	Percentage      float64 `json:"percentage"`
+	PredefinedValue float64 `json:"predefinedValue"`
 	ConditionName   string  `json:"conditionName"`
 }
 
 type CalculateCreditInput struct {
 	ConditionValue interface{} `json:"conditionValue"`
-	StoredValue    float64     `json:"storedValue,omitempty"`
+	StoredValue    float64     `json:"storedValue"`
 }
 
 type CalculateCredit struct{}
@@ -54,11 +54,15 @@ func (a *CalculateCredit) Execute(input interface{}) (*models.Result, bool, erro
 	}
 
 	// Separate unmarshal parameters
-	parameters := a.GetParameters().(CalculateCreditParam)
+	var parameters CalculateCreditParam
+	err = json.Unmarshal(inputBytes, &parameters)
+	if err != nil {
+		return nil, false, errors.WrapError(err, "Failed to unmarshal input")
+	}
 
 	if !parameters.ImposeCredit {
 		return &models.Result{
-			Success:  true,
+			Success:  false,
 			Feedback: "Credit is not imposed.",
 		}, false, nil
 	}
