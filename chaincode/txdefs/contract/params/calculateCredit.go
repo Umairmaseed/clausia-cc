@@ -3,6 +3,7 @@ package params
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/hyperledger-labs/cc-tools/errors"
 	"github.com/hyperledger-labs/goprocess-cc/chaincode/datatypes"
@@ -19,11 +20,20 @@ type CalculateCreditParam struct {
 	Percentage      float64 `json:"percentage"`
 	PredefinedValue float64 `json:"predefinedValue"`
 	ConditionName   string  `json:"conditionName"`
+	ReviewCondition bool    `json:"reviewCondition"`
 }
 
 type CalculateCreditInput struct {
-	ConditionValue interface{} `json:"conditionValue"`
-	StoredValue    float64     `json:"storedValue"`
+	Review      Review  `json:"review"`
+	StoredValue float64 `json:"storedValue"`
+}
+
+type Review struct {
+	User       map[string]interface{} `json:"user"`
+	Rating     int                    `json:"rating"`
+	Comments   string                 `json:"comments"`
+	Date       time.Time              `json:"date"`
+	ContractID map[string]interface{} `json:"contract_id"`
 }
 
 type CalculateCredit struct{}
@@ -60,55 +70,63 @@ func (a *CalculateCredit) Execute(input interface{}) (*models.Result, bool, erro
 		return nil, false, errors.WrapError(err, "Failed to unmarshal input")
 	}
 
-	if !parameters.ImposeCredit {
-		return &models.Result{
-			Success:  false,
-			Feedback: "Credit is not imposed.",
-		}, false, nil
-	}
+	if parameters.ImposeCredit || parameters.ReviewCondition {
+		var creditAmount float64
 
-	// Check the condition
-	conditionMet := false
-	switch v := creditInput.ConditionValue.(type) {
-	case bool:
-		if v {
-			conditionMet = true
+		// If ImposeCredit is true, calculate credit based on the provided parameters
+		if parameters.ImposeCredit {
+			if parameters.Percentage > 0 && creditInput.StoredValue > 0 {
+				creditAmount = (parameters.Percentage / 100) * creditInput.StoredValue
+			} else {
+				creditAmount = parameters.PredefinedValue
+			}
+
+			if creditAmount <= 0 {
+				return nil, false, errors.NewCCError("Invalid credit amount calculated", http.StatusBadRequest)
+			}
+
+			if parameters.CreditName == "" {
+				parameters.CreditName = creditName
+			}
+
+			return &models.Result{
+				Success:  true,
+				Feedback: "Credit calculated successfully.",
+				Data: map[string]interface{}{
+					parameters.CreditName: creditAmount,
+				},
+			}, true, nil
 		}
-	default:
-		conditionMet = creditInput.ConditionValue != nil
+
+		// If ReviewCondition is true, check the Review rating
+		if parameters.ReviewCondition && creditInput.Review.Rating >= 3 {
+			if parameters.Percentage > 0 && creditInput.StoredValue > 0 {
+				creditAmount = (parameters.Percentage / 100) * creditInput.StoredValue
+			} else {
+				creditAmount = parameters.PredefinedValue
+			}
+
+			if creditAmount <= 0 {
+				return nil, false, errors.NewCCError("Invalid credit amount calculated", http.StatusBadRequest)
+			}
+
+			if parameters.CreditName == "" {
+				parameters.CreditName = creditName
+			}
+
+			return &models.Result{
+				Success:  true,
+				Feedback: "Credit calculated based on review rating.",
+				Data: map[string]interface{}{
+					parameters.CreditName: creditAmount,
+				},
+			}, true, nil
+		}
 	}
 
-	if !conditionMet {
-		return &models.Result{
-			Success:  false,
-			Feedback: "Conditions for credit are not met.",
-		}, false, nil
-	}
-
-	var creditAmount float64
-	if parameters.Percentage > 0 && creditInput.StoredValue > 0 {
-		creditAmount = (parameters.Percentage / 100) * creditInput.StoredValue
-	} else {
-		creditAmount = parameters.PredefinedValue
-	}
-
-	if creditAmount <= 0 {
-		return nil, false, errors.NewCCError("Invalid credit amount calculated", http.StatusBadRequest)
-	}
-
-	// Handle empty credit name
-	if parameters.CreditName == "" {
-		parameters.CreditName = creditName
-	}
-
-	// Prepare result
-	result := &models.Result{
-		Success:  true,
-		Feedback: "Credit calculated successfully.",
-		Data: map[string]interface{}{
-			parameters.CreditName: creditAmount,
-		},
-	}
-
-	return result, true, nil
+	// If neither condition is met, return no credit calculation
+	return &models.Result{
+		Success:  false,
+		Feedback: "Conditions for credit are not met.",
+	}, false, nil
 }
