@@ -34,4 +34,5 @@ var txList = []tx.Transaction{
 	contract.AddEvalutedDateCDI,
 	contract.ContractsWithExecutableClauses,
 	contract.ExecuteAutoExecutableContract,
+	contract.AddInputToCheckFineClause,
 }

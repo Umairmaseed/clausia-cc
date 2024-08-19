@@ -33,6 +33,7 @@ var AutoExecutableContract = assets.AssetType{
 		},
 		{
 			Required: true,
+			IsKey:    true,
 			Tag:      "owner",
 			Label:    "Owner",
 			DataType: "->user",

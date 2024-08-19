@@ -26,6 +26,8 @@ func Get(actionType datatypes.ActionType) param {
 	switch actionType {
 	case datatypes.CheckDateInterval:
 		return &CheckDateInterval{}
+	case datatypes.GetDeduction:
+		return &CalculateFine{}
 	default:
 		return nil // to be changed according to non executable action type
 	}
