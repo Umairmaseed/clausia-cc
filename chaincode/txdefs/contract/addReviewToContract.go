@@ -68,10 +68,6 @@ var AddReviewToContract = tx.Transaction{
 
 		data["review"] = review
 
-		if _, exists := data["review"].(map[string]interface{}); !exists {
-			return nil, errors.WrapError(err, "Cant add empty review to contract")
-		}
-
 		updateReq := map[string]interface{}{
 			"data": data,
 		}
