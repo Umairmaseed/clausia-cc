@@ -50,7 +50,7 @@ func (a *CalculateCredit) GetInputs() interface{} {
 	return CalculateCreditInput{}
 }
 
-func (a *CalculateCredit) Execute(input interface{}) (*models.Result, bool, errors.ICCError) {
+func (a *CalculateCredit) Execute(input interface{}, data map[string]interface{}) (*models.Result, bool, errors.ICCError) {
 	// Unmarshal input
 	inputBytes, err := json.Marshal(input)
 	if err != nil {
@@ -89,12 +89,14 @@ func (a *CalculateCredit) Execute(input interface{}) (*models.Result, bool, erro
 				parameters.CreditName = creditName
 			}
 
+			feedback := "Credit calculated successfully."
+
+			updateData := updateBonusData(data, creditAmount, parameters.CreditName, feedback)
+
 			return &models.Result{
 				Success:  true,
-				Feedback: "Credit calculated successfully.",
-				Data: map[string]interface{}{
-					parameters.CreditName: creditAmount,
-				},
+				Feedback: feedback,
+				Data:     updateData,
 			}, true, nil
 		}
 
@@ -114,12 +116,14 @@ func (a *CalculateCredit) Execute(input interface{}) (*models.Result, bool, erro
 				parameters.CreditName = creditName
 			}
 
+			feedback := "Credit calculated based on review rating."
+
+			updateData := updateBonusData(data, creditAmount, parameters.CreditName, feedback)
+
 			return &models.Result{
 				Success:  true,
-				Feedback: "Credit calculated based on review rating.",
-				Data: map[string]interface{}{
-					parameters.CreditName: creditAmount,
-				},
+				Feedback: feedback,
+				Data:     updateData,
 			}, true, nil
 		}
 	}
@@ -129,4 +133,36 @@ func (a *CalculateCredit) Execute(input interface{}) (*models.Result, bool, erro
 		Success:  false,
 		Feedback: "Conditions for credit are not met.",
 	}, false, nil
+}
+
+func updateBonusData(data map[string]interface{}, creditAmount float64, creditName, feedback string) map[string]interface{} {
+	// Update the "bonus" field if it exists
+	if currentBonus, exists := data["bonus"]; exists {
+		if bonusValue, ok := currentBonus.(float64); ok {
+			data["bonus"] = bonusValue + creditAmount
+		}
+	} else {
+		data["bonus"] = creditAmount
+	}
+
+	// Create a new entry for the bonus
+	newBonusEntry := map[string]interface{}{
+		"name":     creditName,
+		"bonus":    creditAmount,
+		"feedback": feedback,
+		"success":  true,
+	}
+
+	// Update the "listOfBonus" field
+	if listOfBonus, exists := data["listOfBonus"]; exists {
+		if bonuses, ok := listOfBonus.([]map[string]interface{}); ok {
+			data["listOfBonus"] = append(bonuses, newBonusEntry)
+		} else {
+			data["listOfBonus"] = []map[string]interface{}{newBonusEntry}
+		}
+	} else {
+		data["listOfBonus"] = []map[string]interface{}{newBonusEntry}
+	}
+
+	return data
 }
