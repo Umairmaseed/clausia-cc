@@ -49,7 +49,7 @@ func (a *CheckDateInterval) getFeedback(isOnTime bool) string {
 	}
 }
 
-func (a *CheckDateInterval) Execute(input interface{}) (*models.Result, bool, errors.ICCError) {
+func (a *CheckDateInterval) Execute(input interface{}, data map[string]interface{}) (*models.Result, bool, errors.ICCError) {
 	// Marshal input to get bytes
 	inputBytes, err := json.Marshal(input)
 	if err != nil {
