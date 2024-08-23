@@ -7,7 +7,7 @@ import (
 	"github.com/hyperledger-labs/cc-tools/errors"
 )
 
-var sha256 = assets.DataType{
+var Sha256 = assets.DataType{
 	AcceptedFormats: []string{"string"},
 	Description:     "Sha256 hash digest string (hexadecimal)",
 	Parse: func(data interface{}) (string, interface{}, errors.ICCError) {
