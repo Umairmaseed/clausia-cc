@@ -79,7 +79,7 @@ func executeClause(stub *sw.StubWrapper, contract *models.AutoExecutableContract
 	inputs := utils.JoinMaps(clause.Input, clause.Parameters, contract.Data)
 
 	action := params.Get(clause.ActionType)
-	result, shouldFinalizeClause, err := action.Execute(inputs)
+	result, shouldFinalizeClause, err := action.Execute(inputs, contract.Data)
 	if err != nil {
 		return errors.WrapError(err, "Failed to execute action")
 	}
