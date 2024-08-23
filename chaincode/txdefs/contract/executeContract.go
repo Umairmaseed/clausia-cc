@@ -84,6 +84,13 @@ func executeClause(stub *sw.StubWrapper, contract *models.AutoExecutableContract
 		return errors.WrapError(err, "Failed to execute action")
 	}
 
+	if len(result.Assets) > 0 {
+		err = utils.SaveGeneratedAssets(stub, result.Assets, contract, clause)
+		if err != nil {
+			return errors.WrapError(err, "Failed to save generated assets")
+		}
+	}
+
 	contract.Data = mergeData(contract.Data, result.Data)
 
 	return updateClause(stub, clause, shouldFinalizeClause, result.Success, result.Feedback)

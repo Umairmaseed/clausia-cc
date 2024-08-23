@@ -111,6 +111,14 @@ func (a *MakePaymentClause) Execute(input interface{}, data map[string]interface
 			"bonus":   currBonusPayment,
 			"fine":    currFinePayment,
 		},
+		Assets: []map[string]interface{}{
+			{
+				"@assetType": "payment",
+				"name":       params.Name,
+				"receipt":    inputs.Receipt,
+				"payment":    inputs.Payment,
+			},
+		},
 	}
 
 	// Update remaining bonus and fine
