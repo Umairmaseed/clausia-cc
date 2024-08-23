@@ -27,7 +27,8 @@ type MakePaymentParams struct {
 type MakePaymentInputs struct {
 	Date         time.Time `json:"date"`
 	Payment      float64   `json:"payment"`
-	Receipt      string    `json:"receipt"`
+	ReceiptHash  string    `json:"receiptHash"`
+	ReceiptUrl   string    `json:"receiptUrl"`
 	FinalPayment bool      `json:"finalPayment"`
 }
 
@@ -98,9 +99,10 @@ func (a *MakePaymentClause) Execute(input interface{}, data map[string]interface
 	updateData := data
 
 	updateData[params.Name] = map[string]interface{}{
-		"receipt": inputs.Receipt,
-		"date":    inputs.Date,
-		"payment": inputs.Payment,
+		"receiptHash": inputs.ReceiptHash,
+		"receiptUrl":  inputs.ReceiptUrl,
+		"date":        inputs.Date,
+		"payment":     inputs.Payment,
 	}
 
 	// Result to be returned
@@ -113,10 +115,11 @@ func (a *MakePaymentClause) Execute(input interface{}, data map[string]interface
 		},
 		Assets: []map[string]interface{}{
 			{
-				"@assetType": "payment",
-				"name":       params.Name,
-				"receipt":    inputs.Receipt,
-				"payment":    inputs.Payment,
+				"@assetType":  "payment",
+				"name":        params.Name,
+				"receiptHash": inputs.ReceiptHash,
+				"receiptUrl":  inputs.ReceiptUrl,
+				"payment":     inputs.Payment,
 			},
 		},
 	}
@@ -143,19 +146,24 @@ func (a *MakePaymentClause) Execute(input interface{}, data map[string]interface
 
 		if inputs.Payment < partialPaymentAmount {
 			result.Feedback = "Partial payment is less than expected. Payment incomplete."
+			result.Success = false
 			return &result, false, nil
 		} else {
 			result.Feedback = "Partial payment successful."
+			result.Success = true
 			return &result, true, nil
 		}
 	} else {
 		// Handle full payment
 		if inputs.Payment < totalAmount {
 			result.Feedback = "Payment is less than the required amount. Payment incomplete."
+			result.Data["paidAmount"] = totalAmount
+			result.Success = false
 			return &result, false, nil
 		} else {
 			result.Feedback = "Full payment successful."
 			result.Data["paidAmount"] = totalAmount
+			result.Success = true
 			return &result, true, nil
 		}
 	}
