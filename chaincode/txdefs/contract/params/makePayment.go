@@ -1,7 +1,10 @@
 package params
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/hyperledger-labs/cc-tools/errors"
@@ -25,11 +28,13 @@ type MakePaymentParams struct {
 }
 
 type MakePaymentInputs struct {
-	Date         time.Time `json:"date"`
-	Payment      float64   `json:"payment"`
-	ReceiptHash  string    `json:"receiptHash"`
-	ReceiptUrl   string    `json:"receiptUrl"`
-	FinalPayment bool      `json:"finalPayment"`
+	Date                time.Time `json:"date"`
+	Payment             float64   `json:"payment"`
+	ReceiptHash         string    `json:"receiptHash"`
+	ReceiptUrl          string    `json:"receiptUrl"`
+	FinalPayment        bool      `json:"finalPayment"`
+	StripeToken         string    `json:"stripeToken"`
+	PayPalTransactionID string    `json:"payPalTransactionID"`
 }
 
 func (a *MakePaymentClause) Type() datatypes.ActionType {
@@ -62,109 +67,167 @@ func (a *MakePaymentClause) Execute(input interface{}, data map[string]interface
 		return nil, false, errors.WrapError(err, "Failed to unmarshal MakePaymentParams")
 	}
 
-	// Retrieve bonus and fine from data
-	var bonusAmount, fineAmount, bonusPaidAmount, finePaidAmount float64
-	if params.AddBonus {
-		if bonus, exists := data["bonus"].(float64); exists {
-			bonusAmount = bonus
-		}
-		if bonusPaid, exists := data["bonusPaid"].(float64); exists {
-			bonusPaidAmount = bonusPaid
-		}
-	}
-	if params.AddFine {
-		if fine, exists := data["fine"].(float64); exists {
-			fineAmount = fine
-		}
-		if finePaid, exists := data["finePaid"].(float64); exists {
-			finePaidAmount = finePaid
-		}
+	// Calculate total amount including bonuses and fines
+	totalAmount, bonusPayment, finePayment, err := a.calculateTotalAmount(params, data)
+	if err != nil {
+		return nil, false, errors.WrapError(err, "Failed to calculate total amount")
 	}
 
-	if params.Name == "" {
-		params.Name = paymentName
+	// Update payment data
+	a.updatePaymentData(data, params, inputs)
+
+	// Create result struct
+	result := a.createResult(data, params, inputs, bonusPayment, finePayment)
+
+	// Process the payment based on whether it's partial or full
+	success, feedback := a.processPayment(params, inputs, totalAmount, data)
+	result.Feedback = feedback
+	result.Success = success
+
+	// Return result
+	return &result, success, nil
+}
+
+func (a *MakePaymentClause) calculateTotalAmount(params MakePaymentParams, data map[string]interface{}) (float64, float64, float64, errors.ICCError) {
+	var bonusAmount, fineAmount, bonusPaidAmount, finePaidAmount float64
+
+	if params.AddBonus {
+		bonusAmount = a.getAmountFromData(data, "bonus")
+		bonusPaidAmount = a.getAmountFromData(data, "bonusPaid")
+	}
+	if params.AddFine {
+		fineAmount = a.getAmountFromData(data, "fine")
+		finePaidAmount = a.getAmountFromData(data, "finePaid")
 	}
 
 	remainingBonus := bonusAmount - bonusPaidAmount
-
 	remainingFine := fineAmount - finePaidAmount
 
 	currBonusPayment := remainingBonus * (params.PaymentRate / 100)
-
 	currFinePayment := remainingFine * (params.PaymentRate / 100)
 
-	// Adjust the amount based on bonus and fine
 	totalAmount := params.Amount + currBonusPayment - currFinePayment
 
-	updateData := data
+	return totalAmount, currBonusPayment, currFinePayment, nil
+}
 
-	updateData[params.Name] = map[string]interface{}{
-		"receiptHash": inputs.ReceiptHash,
-		"receiptUrl":  inputs.ReceiptUrl,
-		"date":        inputs.Date,
-		"payment":     inputs.Payment,
+func (a *MakePaymentClause) getAmountFromData(data map[string]interface{}, key string) float64 {
+	if amount, exists := data[key].(float64); exists {
+		return amount
+	}
+	return 0.0
+}
+
+func (a *MakePaymentClause) updatePaymentData(data map[string]interface{}, params MakePaymentParams, inputs MakePaymentInputs) {
+	paymentData := map[string]interface{}{
+		"date":    inputs.Date,
+		"payment": inputs.Payment,
 	}
 
-	// Result to be returned
+	if inputs.ReceiptHash != "" {
+		paymentData["receiptHash"] = inputs.ReceiptHash
+	}
+	if inputs.ReceiptUrl != "" {
+		paymentData["receiptUrl"] = inputs.ReceiptUrl
+	}
+
+	if inputs.StripeToken != "" {
+		paymentData["stripeToken"] = inputs.StripeToken
+	}
+	if inputs.PayPalTransactionID != "" {
+		paymentData["payPalTransactionID"] = inputs.PayPalTransactionID
+	}
+
+	data[params.Name] = paymentData
+}
+
+func (a *MakePaymentClause) createResult(data map[string]interface{}, params MakePaymentParams, inputs MakePaymentInputs, bonusPayment, finePayment float64) models.Result {
+	paymentID := generatePaymentID(params, inputs)
+
+	assetData := map[string]interface{}{
+		"@assetType": "payment",
+		"hash":       paymentID,
+		"name":       params.Name,
+		"payment":    inputs.Payment,
+	}
+
+	if inputs.ReceiptUrl != "" {
+		assetData["receiptUrl"] = inputs.ReceiptUrl
+	}
+
+	if inputs.StripeToken != "" {
+		assetData["stripeToken"] = inputs.StripeToken
+	}
+
+	if inputs.PayPalTransactionID != "" {
+		assetData["payPalTransactionID"] = inputs.PayPalTransactionID
+	}
+
 	result := models.Result{
-		Data: updateData,
+		Data: data,
 		Meta: map[string]interface{}{
 			"payment": inputs.Payment,
-			"bonus":   currBonusPayment,
-			"fine":    currFinePayment,
+			"bonus":   bonusPayment,
+			"fine":    finePayment,
 		},
 		Assets: []map[string]interface{}{
-			{
-				"@assetType":  "payment",
-				"name":        params.Name,
-				"receiptHash": inputs.ReceiptHash,
-				"receiptUrl":  inputs.ReceiptUrl,
-				"payment":     inputs.Payment,
-			},
+			assetData,
 		},
 	}
 
-	// Update remaining bonus and fine
 	if params.AddBonus {
-		result.Data["bonusPaid"] = bonusPaidAmount + currBonusPayment
+		result.Data["bonusPaid"] = a.getAmountFromData(data, "bonusPaid") + bonusPayment
 	}
 	if params.AddFine {
-		result.Data["finePaid"] = finePaidAmount + currFinePayment
+		result.Data["finePaid"] = a.getAmountFromData(data, "finePaid") + finePayment
 	}
 
-	// Handle partial payment
-	if params.PartialPayment {
-		// Check for previous partial payments
-		previousPayment := 0.0
-		if prev, exists := data["previousPartialPayment"]; exists {
-			previousPayment, _ = prev.(float64)
-		}
-		partialPaymentAmount := totalAmount * (params.PaymentRate / 100)
+	return result
+}
 
-		// Update result with the current partial payment
-		result.Data["previousPartialPayment"] = previousPayment + inputs.Payment
+func generatePaymentID(params MakePaymentParams, inputs MakePaymentInputs) string {
+	if inputs.ReceiptHash != "" {
+		return inputs.ReceiptHash
+	}
 
-		if inputs.Payment < partialPaymentAmount {
-			result.Feedback = "Partial payment is less than expected. Payment incomplete."
-			result.Success = false
-			return &result, false, nil
-		} else {
-			result.Feedback = "Partial payment successful."
-			result.Success = true
-			return &result, true, nil
-		}
+	var uniqueData string
+	if inputs.StripeToken != "" {
+		uniqueData = inputs.StripeToken
+	} else if inputs.PayPalTransactionID != "" {
+		uniqueData = inputs.PayPalTransactionID
 	} else {
-		// Handle full payment
-		if inputs.Payment < totalAmount {
-			result.Feedback = "Payment is less than the required amount. Payment incomplete."
-			result.Data["paidAmount"] = totalAmount
-			result.Success = false
-			return &result, false, nil
-		} else {
-			result.Feedback = "Full payment successful."
-			result.Data["paidAmount"] = totalAmount
-			result.Success = true
-			return &result, true, nil
-		}
+		// Fallback to creating a hash based on the payment name and amount
+		uniqueData = fmt.Sprintf("%s-%f", params.Name, inputs.Payment)
 	}
+
+	hash := sha256.Sum256([]byte(uniqueData))
+	return hex.EncodeToString(hash[:])
+}
+
+func (a *MakePaymentClause) processPayment(params MakePaymentParams, inputs MakePaymentInputs, totalAmount float64, data map[string]interface{}) (bool, string) {
+	if params.PartialPayment {
+		return a.processPartialPayment(params, inputs, totalAmount, data)
+	}
+	return a.processFullPayment(inputs, totalAmount, data)
+}
+
+func (a *MakePaymentClause) processPartialPayment(params MakePaymentParams, inputs MakePaymentInputs, totalAmount float64, data map[string]interface{}) (bool, string) {
+	previousPayment := a.getAmountFromData(data, "previousPartialPayment")
+	partialPaymentAmount := totalAmount * (params.PaymentRate / 100)
+
+	data["previousPartialPayment"] = previousPayment + inputs.Payment
+
+	if inputs.Payment < partialPaymentAmount {
+		return false, "Partial payment is less than expected. Payment incomplete."
+	}
+	return true, "Partial payment successful."
+}
+
+func (a *MakePaymentClause) processFullPayment(inputs MakePaymentInputs, totalAmount float64, data map[string]interface{}) (bool, string) {
+	if inputs.Payment < totalAmount {
+		data["paidAmount"] = totalAmount
+		return false, "Payment is less than the required amount. Payment incomplete."
+	}
+	data["paidAmount"] = totalAmount
+	return true, "Full payment successful."
 }

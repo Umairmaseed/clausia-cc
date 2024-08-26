@@ -17,8 +17,8 @@ var Payment = assets.AssetType{
 		{
 			Required: true,
 			IsKey:    true,
-			Tag:      "receiptHash",
-			Label:    "receiptHash",
+			Tag:      "hash",
+			Label:    "hash",
 			DataType: "sha256",
 		},
 		{
