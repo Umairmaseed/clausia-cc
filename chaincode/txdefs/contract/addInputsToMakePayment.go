@@ -39,7 +39,6 @@ var AddInputsToMakePaymentClause = tx.Transaction{
 			Tag:      "receiptHash",
 			Label:    "Receipt hash",
 			DataType: "string",
-			Required: true,
 		},
 		{
 			Tag:      "finalPayment",
@@ -51,7 +50,16 @@ var AddInputsToMakePaymentClause = tx.Transaction{
 			Tag:      "receiptUrl",
 			Label:    "receipt url",
 			DataType: "string",
-			Required: true,
+		},
+		{
+			Tag:      "stripeToken",
+			Label:    "Stripe Token",
+			DataType: "string",
+		},
+		{
+			Tag:      "payPalTransactionID",
+			Label:    "PayPal Transaction ID",
+			DataType: "string",
 		},
 	},
 	Routine: func(stub *sw.StubWrapper, req map[string]interface{}) ([]byte, errors.ICCError) {
@@ -80,14 +88,26 @@ var AddInputsToMakePaymentClause = tx.Transaction{
 			input["date"] = req["date"]
 			input["payment"] = req["payment"]
 			input["finalPayment"] = req["finalPayment"]
-			input["receiptUrl"] = req["receiptUrl"]
 
-			hash, _, err := datatypes.Sha256.Parse(req["receiptHash"])
-			if err != nil {
-				return nil, errors.WrapError(err, "Failed to update clause")
+			if req["receiptHash"] != nil {
+				hash, _, err := datatypes.Sha256.Parse(req["receiptHash"])
+				if err != nil {
+					return nil, errors.WrapError(err, "Failed to update clause")
+				}
+
+				input["receiptHash"] = hash
 			}
 
-			input["receiptHash"] = hash
+			if req["receiptUrl"] != nil {
+				input["receiptUrl"] = req["receiptUrl"]
+			}
+
+			if req["stripeToken"] != nil {
+				input["stripeToken"] = req["stripeToken"]
+			}
+			if req["payPalTransactionID"] != nil {
+				input["payPalTransactionID"] = req["payPalTransactionID"]
+			}
 
 			clauseUpdated, err := clauseAsset.Update(stub, map[string]interface{}{
 				"input": input,
