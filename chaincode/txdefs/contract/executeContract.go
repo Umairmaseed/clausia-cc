@@ -37,7 +37,7 @@ var ExecuteAutoExecutableContract = tx.Transaction{
 		}
 
 		for _, clause := range contract.Clauses {
-			err = executeClause(stub, contract, clause)
+			err = ExecuteClause(stub, contract, clause)
 			if err != nil {
 				return nil, errors.WrapError(err, "Failed to execute clause")
 			}
@@ -59,7 +59,7 @@ var ExecuteAutoExecutableContract = tx.Transaction{
 	},
 }
 
-func executeClause(stub *sw.StubWrapper, contract *models.AutoExecutableContract, clause *models.Clause) errors.ICCError {
+func ExecuteClause(stub *sw.StubWrapper, contract *models.AutoExecutableContract, clause *models.Clause) errors.ICCError {
 	if clause.Finalized || !clause.Executable {
 		return nil
 	}
@@ -70,7 +70,7 @@ func executeClause(stub *sw.StubWrapper, contract *models.AutoExecutableContract
 			return errors.NewCCError("Clause does not belong to contract", http.StatusBadRequest)
 		}
 
-		err := executeClause(stub, contract, depClause)
+		err := ExecuteClause(stub, contract, depClause)
 		if err != nil {
 			return err
 		}
