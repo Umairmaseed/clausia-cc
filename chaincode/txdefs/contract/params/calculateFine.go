@@ -40,7 +40,7 @@ func (a *CalculateFine) GetInputs() interface{} {
 	return CalculateFineInput{}
 }
 
-func (a *CalculateFine) Execute(input interface{}) (*models.Result, bool, errors.ICCError) {
+func (a *CalculateFine) Execute(input interface{}, data map[string]interface{}) (*models.Result, bool, errors.ICCError) {
 	inputBytes, err := json.Marshal(input)
 	if err != nil {
 		return nil, false, errors.WrapError(err, "failed to marshal input")
@@ -90,13 +90,40 @@ func (a *CalculateFine) Execute(input interface{}) (*models.Result, bool, errors
 		fineParams.FineName = fineName
 	}
 
-	// Prepare result
+	updateData := data
+
+	// Add fine to the "fine" field if it exists
+	if currentFine, exists := updateData["fine"]; exists {
+		if fineValue, ok := currentFine.(float64); ok {
+			updateData["fine"] = fineValue + fine
+		}
+	} else {
+		updateData["fine"] = fine
+	}
+
+	// Add the current fine to the "listOfFines" field
+	newFineEntry := map[string]interface{}{
+		"name":     fineParams.FineName,
+		"fine":     fine,
+		"feedback": "Fine calculated successfully.",
+		"success":  true,
+	}
+
+	if listOfFines, exists := updateData["listOfFines"]; exists {
+		if fines, ok := listOfFines.([]map[string]interface{}); ok {
+			updateData["listOfFines"] = append(fines, newFineEntry)
+		} else {
+			updateData["listOfFines"] = []map[string]interface{}{newFineEntry}
+		}
+	} else {
+		updateData["listOfFines"] = []map[string]interface{}{newFineEntry}
+	}
+
+	// Prepare the result with updated data
 	result := &models.Result{
 		Success:  true,
 		Feedback: "Fine calculated successfully.",
-		Data: map[string]interface{}{
-			fineParams.FineName: fine,
-		},
+		Data:     updateData,
 	}
 
 	return result, true, nil

@@ -9,7 +9,7 @@ import (
 type param interface {
 	Type() datatypes.ActionType
 
-	Execute(args interface{}) (*models.Result, bool, errors.ICCError)
+	Execute(args interface{}, data map[string]interface{}) (*models.Result, bool, errors.ICCError)
 
 	GetParameters() interface{}
 
@@ -30,6 +30,8 @@ func Get(actionType datatypes.ActionType) param {
 		return &CalculateFine{}
 	case datatypes.GetCredit:
 		return &CalculateCredit{}
+	case datatypes.Payment:
+		return &MakePaymentClause{}
 	default:
 		return nil // to be changed according to non executable action type
 	}

@@ -17,4 +17,5 @@ var assetTypeList = []assets.AssetType{
 	contractassettypes.Clause,
 	contractassettypes.Deduction,
 	contractassettypes.Credit,
+	contractassettypes.Payment,
 }
