@@ -32,6 +32,8 @@ func Get(actionType datatypes.ActionType) param {
 		return &CalculateCredit{}
 	case datatypes.Payment:
 		return &MakePaymentClause{}
+	case datatypes.FinishContract:
+		return &FinalizeContract{}
 	default:
 		return nil // to be changed according to non executable action type
 	}
