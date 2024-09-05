@@ -28,6 +28,11 @@ var EditTemplateClause = tx.Transaction{
 			DataType: "string",
 		},
 		{
+			Tag:      "number",
+			Label:    "Number",
+			DataType: "number",
+		},
+		{
 			Tag:      "description",
 			Label:    "Description",
 			DataType: "string",
@@ -88,8 +93,11 @@ var EditTemplateClause = tx.Transaction{
 			updateReq["dependencies"] = dependencies
 		}
 
-		if actionType, ok := req["actionType"].(string); ok {
+		if actionType, ok := req["actionType"].(float64); ok {
 			updateReq["actionType"] = actionType
+		}
+		if number, ok := req["number"].(float64); ok {
+			updateReq["number"] = number
 		}
 
 		if defaultInputs, ok := req["defaultInputs"].(map[string]interface{}); ok {
