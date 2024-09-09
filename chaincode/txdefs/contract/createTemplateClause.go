@@ -72,6 +72,11 @@ var CreateTemplateClause = tx.Transaction{
 			Label:    "Default Parameters",
 			DataType: "@object",
 		},
+		{
+			Tag:      "optional",
+			Label:    "Optional",
+			DataType: "boolean",
+		},
 	},
 	Routine: func(stub *sw.StubWrapper, req map[string]interface{}) ([]byte, errors.ICCError) {
 
@@ -127,6 +132,9 @@ var CreateTemplateClause = tx.Transaction{
 
 		if defaultParameters, ok := req["defaultParameters"].(map[string]interface{}); ok {
 			templateClause["defaultParameters"] = defaultParameters
+		}
+		if optional, ok := req["optional"].(bool); ok {
+			templateClause["optional"] = optional
 		}
 
 		newTemplateClause, err := assets.NewAsset(templateClause)

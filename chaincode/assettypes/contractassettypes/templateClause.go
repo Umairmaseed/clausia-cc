@@ -67,5 +67,10 @@ var TemplateClause = assets.AssetType{
 			DataType:    "@object",
 			Description: "This object is meant to hold default values for parameters that may be used on the creation of a contract with the template",
 		},
+		{
+			Tag:      "optional",
+			Label:    "Optional",
+			DataType: "boolean",
+		},
 	},
 }
