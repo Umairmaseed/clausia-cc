@@ -38,4 +38,11 @@ var txList = []tx.Transaction{
 	contract.AddReviewToContract,
 	contract.AddInputsToMakePaymentClause,
 	contract.CancelContract,
+	contract.CreateTemplate,
+	contract.CreateTemplateClause,
+	contract.EditTemplate,
+	contract.EditTemplateClause,
+	contract.DuplicateTemplate,
+	contract.RemoveTemplate,
+	contract.RemoveTemplateClause,
 }
