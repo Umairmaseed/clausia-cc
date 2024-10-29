@@ -33,5 +33,11 @@ var User = assets.AssetType{
 			DataType: "string",
 			Required: true,
 		},
+		{
+			Tag:      "userName",
+			Label:    "UserName",
+			DataType: "string",
+			Required: true,
+		},
 	},
 }

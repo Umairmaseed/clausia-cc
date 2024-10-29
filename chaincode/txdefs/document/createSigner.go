@@ -40,6 +40,12 @@ var CreateSigner = tx.Transaction{
 			Required: true,
 			DataType: "string",
 		},
+		{
+			Tag:      "userName",
+			Label:    "UserName",
+			Required: true,
+			DataType: "string",
+		},
 	},
 
 	Routine: func(stub *sw.StubWrapper, req map[string]interface{}) ([]byte, errors.ICCError) {
@@ -63,12 +69,18 @@ var CreateSigner = tx.Transaction{
 			return nil, errors.NewCCError("Failed to get phone parameter", 400)
 		}
 
+		userName, ok := req["userName"].(string)
+		if !ok {
+			return nil, errors.NewCCError("Failed to get userName parameter", 400)
+		}
+
 		signer := map[string]interface{}{
 			"@assetType": "user",
 			"cpf":        cpf,
 			"email":      email,
 			"name":       name,
 			"phone":      phone,
+			"userName":   userName,
 		}
 
 		newSigner, err := assets.NewAsset(signer)
