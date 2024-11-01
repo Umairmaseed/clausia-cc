@@ -24,6 +24,7 @@ var txList = []tx.Transaction{
 	document.UpdateSigner,
 	document.ExpectedUserDoc,
 	document.GetDocHistory,
+	document.SearchAssetQuery,
 
 	contract.CreateAutoExecutableContract,
 	contract.AddClause,
