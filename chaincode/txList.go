@@ -36,6 +36,7 @@ var txList = []tx.Transaction{
 	contract.ContractsWithExecutableClauses,
 	contract.ExecuteAutoExecutableContract,
 	contract.AddInputToCheckFineClause,
+	contract.AddStoredValueToGetCredit,
 	contract.AddReviewToContract,
 	contract.AddInputsToMakePaymentClause,
 	contract.CancelContract,
