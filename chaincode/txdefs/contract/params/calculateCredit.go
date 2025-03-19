@@ -24,7 +24,6 @@ type CalculateCreditParam struct {
 }
 
 type CalculateCreditInput struct {
-	Review      Review  `json:"review"`
 	StoredValue float64 `json:"storedValue"`
 }
 
@@ -54,7 +53,7 @@ func (a *CalculateCredit) Execute(input interface{}, data map[string]interface{}
 	// Unmarshal input
 	inputBytes, err := json.Marshal(input)
 	if err != nil {
-		return nil, false, errors.WrapError(err, "failed to marshal input")
+		return nil, false, errors.WrapError(err, "Failed to marshal input")
 	}
 
 	var creditInput CalculateCreditInput
@@ -63,11 +62,31 @@ func (a *CalculateCredit) Execute(input interface{}, data map[string]interface{}
 		return nil, false, errors.WrapError(err, "Failed to unmarshal input")
 	}
 
-	// Separate unmarshal parameters
 	var parameters CalculateCreditParam
 	err = json.Unmarshal(inputBytes, &parameters)
 	if err != nil {
-		return nil, false, errors.WrapError(err, "Failed to unmarshal input")
+		return nil, false, errors.WrapError(err, "Failed to unmarshal parameters")
+	}
+
+	// If ReviewCondition is true, check if review is available in data
+	var reviewRating float64
+	if parameters.ReviewCondition {
+		review, ok := data["review"].(map[string]interface{})
+		if !ok {
+			return &models.Result{
+				Success:  false,
+				Feedback: "Waiting for contract review to calculate the credit",
+			}, false, nil
+		}
+
+		if rating, exists := review["rating"].(float64); exists {
+			reviewRating = rating
+		} else {
+			return &models.Result{
+				Success:  false,
+				Feedback: "Invalid rating format in review",
+			}, false, nil
+		}
 	}
 
 	if parameters.ImposeCredit || parameters.ReviewCondition {
@@ -90,7 +109,6 @@ func (a *CalculateCredit) Execute(input interface{}, data map[string]interface{}
 			}
 
 			feedback := "Credit calculated successfully."
-
 			updateData := updateBonusData(data, creditAmount, parameters.CreditName, feedback)
 
 			return &models.Result{
@@ -100,8 +118,8 @@ func (a *CalculateCredit) Execute(input interface{}, data map[string]interface{}
 			}, true, nil
 		}
 
-		// If ReviewCondition is true, check the Review rating
-		if parameters.ReviewCondition && creditInput.Review.Rating >= 3 {
+		// If ReviewCondition is true and review rating is 3 or above, calculate credit
+		if parameters.ReviewCondition && reviewRating >= 3 {
 			if parameters.Percentage > 0 && creditInput.StoredValue > 0 {
 				creditAmount = (parameters.Percentage / 100) * creditInput.StoredValue
 			} else {
@@ -117,7 +135,6 @@ func (a *CalculateCredit) Execute(input interface{}, data map[string]interface{}
 			}
 
 			feedback := "Credit calculated based on review rating."
-
 			updateData := updateBonusData(data, creditAmount, parameters.CreditName, feedback)
 
 			return &models.Result{
