@@ -2,6 +2,7 @@ package contract
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/hyperledger-labs/cc-tools/assets"
@@ -39,7 +40,8 @@ var ExecuteAutoExecutableContract = tx.Transaction{
 		for _, clause := range contract.Clauses {
 			err = ExecuteClause(stub, contract, clause)
 			if err != nil {
-				return nil, errors.WrapError(err, "Failed to execute clause")
+				fmt.Printf("Error executing clause %s: %v\n", clause.Key, err)
+				continue
 			}
 		}
 
