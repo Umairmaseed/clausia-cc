@@ -2,6 +2,8 @@ package contract
 
 import (
 	"encoding/json"
+	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/hyperledger-labs/cc-tools/assets"
@@ -52,6 +54,33 @@ var AddEvalutedDateCDI = tx.Transaction{
 			return nil, errors.WrapError(err, "Failed to get clause asset from ledger")
 		}
 
+		query := map[string]interface{}{
+			"selector": map[string]interface{}{
+				"@assetType": "autoExecutableContract",
+				"clauses": map[string]interface{}{
+					"$elemMatch": clauseKey,
+				},
+			},
+		}
+
+		response, err := assets.Search(stub, query, "", true)
+		if err != nil {
+			return nil, errors.WrapErrorWithStatus(err, "error searching for query", http.StatusInternalServerError)
+		}
+
+		contractKey := assets.Key{}
+		if len(response.Result) != 0 {
+			contractKey = assets.Key{
+				"@assetType": "autoExecutableContract",
+				"@key":       response.Result[0]["@key"],
+			}
+		}
+
+		contractAsset, err := contractKey.Get(stub)
+		if err != nil {
+			return nil, errors.WrapError(err, "Failed to get autoExecutableContract asset from ledger")
+		}
+
 		actionType, ok := (*clauseAsset)["actionType"].(datatypes.ActionType)
 		if !ok {
 			return nil, errors.NewCCError("Invalid action type format", 400)
@@ -71,6 +100,32 @@ var AddEvalutedDateCDI = tx.Transaction{
 			})
 			if err != nil {
 				return nil, errors.WrapError(err, "Failed to update clause")
+			}
+
+			contractDates, ok := (*contractAsset)["dates"].(map[string]interface{})
+			if !ok {
+				contractDates = make(map[string]interface{})
+			}
+
+			baseKey := "evaluatedDate"
+			newKey := baseKey
+			counter := 1
+
+			for {
+				if _, exists := contractDates[newKey]; !exists {
+					break
+				}
+				newKey = fmt.Sprintf("%s_%d", baseKey, counter)
+				counter++
+			}
+
+			contractDates[newKey] = evaluatedDate
+			_, err = contractAsset.Update(stub, map[string]interface{}{
+				"dates": contractDates,
+			})
+
+			if err != nil {
+				return nil, errors.WrapError(err, "Failed to update contract asset")
 			}
 
 			response, nerr := json.Marshal(clauseUpdated)
