@@ -68,6 +68,7 @@ var CreateAutoExecutableContract = tx.Transaction{
 			"name":          name,
 			"signatureDate": signatureDate,
 			"owner":         owner,
+			"dates":         map[string]interface{}{"signature": signatureDate},
 		}
 
 		if clauses, ok := req["clauses"].([]interface{}); ok {
