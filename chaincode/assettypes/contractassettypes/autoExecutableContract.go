@@ -43,5 +43,11 @@ var AutoExecutableContract = assets.AssetType{
 			Label:    "Participants",
 			DataType: "[]->user",
 		},
+		{
+			Tag:         "dates",
+			Label:       "Dates",
+			DataType:    "@object",
+			Description: "This includes all the dates that are linked to the contract.",
+		},
 	},
 }
