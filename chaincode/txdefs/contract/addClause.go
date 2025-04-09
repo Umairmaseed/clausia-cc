@@ -2,7 +2,9 @@ package contract
 
 import (
 	"encoding/json"
+	"fmt"
 	"reflect"
+	"time"
 
 	"github.com/hyperledger-labs/cc-tools/assets"
 	"github.com/hyperledger-labs/cc-tools/errors"
@@ -92,17 +94,19 @@ var AddClause = tx.Transaction{
 			clause["executable"] = false
 		}
 
+		filteredInput := make(map[string]interface{})
 		if input, ok := req["input"].(map[string]interface{}); ok {
 			formatOutputNames(input)
 			inputType := paramHandler.GetInputs()
-			filteredInput := filterFields(input, inputType)
+			filteredInput = filterFields(input, inputType)
 			clause["input"] = filteredInput
 		}
 
+		filteredParams := make(map[string]interface{})
 		if parameters, ok := req["parameters"].(map[string]interface{}); ok {
 			formatOutputNames(parameters)
 			paramsType := paramHandler.GetParameters()
-			filteredParams := filterFields(parameters, paramsType)
+			filteredParams = filterFields(parameters, paramsType)
 			clause["parameters"] = filteredParams
 		}
 
@@ -118,6 +122,11 @@ var AddClause = tx.Transaction{
 		contract, err := contractKey.Get(stub)
 		if err != nil {
 			return nil, errors.WrapError(err, "Failed to get autoExecutableContract asset from ledger")
+		}
+
+		contractDates, ok := (*contract)["dates"].(map[string]interface{})
+		if !ok {
+			contractDates = make(map[string]interface{})
 		}
 
 		clauses, exists := (*contract)["clauses"].([]interface{})
@@ -147,8 +156,24 @@ var AddClause = tx.Transaction{
 
 		clauses = append(clauses, clauseAsset)
 
+		extractDates := ExtractDates(filteredParams, filteredInput)
+
+		for k, v := range extractDates {
+			newKey := k
+			i := 1
+			for {
+				if _, exists := contractDates[newKey]; !exists {
+					break
+				}
+				newKey = fmt.Sprintf("%s_%d", k, i)
+				i++
+			}
+			contractDates[newKey] = v
+		}
+
 		updatedContract, err := contractKey.Update(stub, map[string]interface{}{
 			"clauses": clauses,
+			"dates":   contractDates,
 		})
 		if err != nil {
 			return nil, errors.WrapError(err, "Failed to update contract asset with new clause")
@@ -189,4 +214,43 @@ func filterFields(data map[string]interface{}, structType interface{}) map[strin
 	}
 
 	return result
+}
+
+func ExtractDates(map1, map2 map[string]interface{}) map[string]interface{} {
+	result := make(map[string]interface{})
+
+	extract := func(data map[string]interface{}) {
+		for k, v := range data {
+			switch val := v.(type) {
+			case time.Time:
+				result[k] = val
+			case string:
+				if t, err := tryParseDate(val); err == nil {
+					result[k] = t
+				}
+			}
+		}
+	}
+
+	extract(map1)
+	extract(map2)
+
+	return result
+}
+
+func tryParseDate(s string) (time.Time, error) {
+	formats := []string{
+		time.RFC3339,
+		"2006-01-02",
+		"2006-01-02 15:04:05",
+		time.RFC1123,
+		time.RFC822,
+	}
+
+	for _, layout := range formats {
+		if t, err := time.Parse(layout, s); err == nil {
+			return t, nil
+		}
+	}
+	return time.Time{}, fmt.Errorf("not a date")
 }
