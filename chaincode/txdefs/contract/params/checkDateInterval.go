@@ -2,6 +2,7 @@ package params
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -73,6 +74,8 @@ func (a *CheckDateInterval) Execute(input interface{}, data map[string]interface
 	// Default name if not provided
 	if args.Name == "" {
 		args.Name = defaultName
+	} else if args.Name != "" {
+		args.Name = args.Name + "_" + defaultName
 	}
 
 	// Determine the ReferenceDate
@@ -135,19 +138,32 @@ func (a *CheckDateInterval) Execute(input interface{}, data map[string]interface
 	isWithinDeadline := evaluatedDate.Before(intervalDate) || evaluatedDate.Equal(intervalDate)
 	feedback := a.getFeedback(isWithinDeadline)
 
-	// Calculate the number of days from the deadline
 	daysFromDeadline := int(intervalDate.Sub(evaluatedDate).Hours() / 24)
-	if daysFromDeadline < 0 {
-		daysFromDeadline = -daysFromDeadline
+
+	var deadlineInfo string
+	if daysFromDeadline > 0 {
+		deadlineInfo = fmt.Sprintf("%d days before deadline", daysFromDeadline)
+	} else if daysFromDeadline < 0 {
+		deadlineInfo = fmt.Sprintf("%d days after deadline", -daysFromDeadline)
+	} else {
+		deadlineInfo = "on the deadline day"
 	}
 
-	return &models.Result{
+	result := &models.Result{
 		Success:  isWithinDeadline,
 		Feedback: feedback,
 		Data: map[string]interface{}{
-			args.Name: daysFromDeadline,
+			args.Name: map[string]interface{}{
+				"feedback":         feedback,
+				"evaluatedDate":    evaluatedDate.Format(time.RFC3339),
+				"success":          isWithinDeadline,
+				"daysFromDeadline": daysFromDeadline,
+				"remarks":          deadlineInfo,
+			},
 		},
-	}, true, nil
+	}
+	return result, isWithinDeadline, nil
+
 }
 
 func (a *CheckDateInterval) GetParameters() interface{} {
