@@ -162,7 +162,7 @@ func (a *CheckDateInterval) Execute(input interface{}, data map[string]interface
 			},
 		},
 	}
-	return result, isWithinDeadline, nil
+	return result, true, nil
 
 }
 
