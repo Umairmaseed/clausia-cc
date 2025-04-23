@@ -38,6 +38,16 @@ var AddInputToCheckFineClause = tx.Transaction{
 			Label:    "days",
 			DataType: "number",
 		},
+		{
+			Tag:      "referenceClauseDays",
+			Label:    "Reference Clause Days",
+			DataType: "boolean",
+		},
+		{
+			Tag:      "referenceClauseName",
+			Label:    "Reference Clause Name",
+			DataType: "string",
+		},
 	},
 	Routine: func(stub *sw.StubWrapper, req map[string]interface{}) ([]byte, errors.ICCError) {
 		clauseKey, ok := req["clause"].(assets.Key)
@@ -70,6 +80,12 @@ var AddInputToCheckFineClause = tx.Transaction{
 			}
 			if days, ok := req["days"].(float64); ok {
 				input["days"] = days
+			}
+			if referenceClauseDays, ok := req["referenceClauseDays"].(bool); ok {
+				input["referenceClauseDays"] = referenceClauseDays
+			}
+			if referenceClauseName, ok := req["referenceClauseName"].(string); ok {
+				input["referenceClauseName"] = referenceClauseName
 			}
 
 			clauseUpdated, err := clauseAsset.Update(stub, map[string]interface{}{
