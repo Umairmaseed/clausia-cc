@@ -2,7 +2,8 @@ package params
 
 import (
 	"encoding/json"
-	"net/http"
+	"fmt"
+	"math"
 
 	"github.com/hyperledger-labs/cc-tools/errors"
 	"github.com/hyperledger-labs/goprocess-cc/chaincode/datatypes"
@@ -14,16 +15,17 @@ const (
 )
 
 type CalculateFineParameters struct {
-	ImposeFine        bool    `json:"imposeFine"`
 	FineName          string  `json:"fineName"`
 	MaxPercentage     float64 `json:"maxPercentage"`
 	MaxReferenceValue float64 `json:"maxReferenceValue"`
 }
 
 type CalculateFineInput struct {
-	ReferenceValue  float64 `json:"referenceValue"`
-	DailyPercentage float64 `json:"dailyPercentage"`
-	Days            float64 `json:"days"`
+	ReferenceValue      float64 `json:"referenceValue"`
+	DailyPercentage     float64 `json:"dailyPercentage"`
+	Days                float64 `json:"days"`
+	ReferenceClauseDays bool    `json:"referenceClauseDays"`
+	ReferenceClauseName string  `json:"referenceClauseName"`
 }
 
 type CalculateFine struct{}
@@ -58,19 +60,40 @@ func (a *CalculateFine) Execute(input interface{}, data map[string]interface{}) 
 		return nil, false, errors.WrapError(err, "Failed to unmarshal parameters")
 	}
 
-	if !fineParams.ImposeFine {
+	if fineInput.ReferenceValue <= 0 || fineInput.DailyPercentage <= 0 {
 		return &models.Result{
-			Success:  true,
-			Feedback: "Fine calculation is not imposed.",
+			Success:  false,
+			Feedback: "Waiting for input values to be set to execute the clause.",
 		}, false, nil
 	}
 
-	if fineInput.ReferenceValue <= 0 || fineInput.DailyPercentage <= 0 || fineInput.Days <= 0 {
-		return nil, false, errors.NewCCError("Invalid input values: ReferenceValue, DailyPercentage, and Days should be greater than 0", http.StatusBadRequest)
+	var days float64 = fineInput.Days
+
+	if fineInput.ReferenceClauseDays {
+		cdiClauseResultKey := fineInput.ReferenceClauseName + "_dateIntervalCheck"
+
+		if clauseResultRaw, exists := data[cdiClauseResultKey]; exists {
+			if clauseResult, ok := clauseResultRaw.(map[string]interface{}); ok {
+				if rawDays, ok := clauseResult["daysFromDeadline"]; ok {
+					if clauseDays, ok := rawDays.(float64); ok {
+						if clauseDays < 0 {
+							days = math.Abs(clauseDays)
+						} else {
+							days = 0
+						}
+					}
+				}
+			}
+		} else {
+			return &models.Result{
+				Success:  false,
+				Feedback: fmt.Sprintf("Feedback: Waiting for the %s clause to be executed.", fineInput.ReferenceClauseName),
+			}, false, nil
+		}
 	}
 
 	// Calculate the fine
-	fine := fineInput.ReferenceValue * fineInput.DailyPercentage / 100 * fineInput.Days
+	fine := fineInput.ReferenceValue * fineInput.DailyPercentage / 100 * days
 
 	// Apply upper limit if necessary
 	var shouldConsiderUpperLimit bool
@@ -79,7 +102,7 @@ func (a *CalculateFine) Execute(input interface{}, data map[string]interface{}) 
 	}
 
 	if shouldConsiderUpperLimit {
-		limit := fineParams.MaxPercentage / 100 * fineParams.MaxReferenceValue
+		limit := fineParams.MaxPercentage / 100 * fineParams.MaxReferenceValue * days
 		if fine > limit {
 			fine = limit
 		}
@@ -110,19 +133,20 @@ func (a *CalculateFine) Execute(input interface{}, data map[string]interface{}) 
 	}
 
 	if listOfFines, exists := updateData["listOfFines"]; exists {
-		if fines, ok := listOfFines.([]map[string]interface{}); ok {
-			updateData["listOfFines"] = append(fines, newFineEntry)
+		if fines, ok := listOfFines.([]interface{}); ok {
+			fines = append(fines, newFineEntry)
+			updateData["listOfFines"] = fines
 		} else {
-			updateData["listOfFines"] = []map[string]interface{}{newFineEntry}
+			updateData["listOfFines"] = []interface{}{newFineEntry}
 		}
 	} else {
-		updateData["listOfFines"] = []map[string]interface{}{newFineEntry}
+		updateData["listOfFines"] = []interface{}{newFineEntry}
 	}
 
 	// Prepare the result with updated data
 	result := &models.Result{
 		Success:  true,
-		Feedback: "Fine calculated successfully.",
+		Feedback: "Fine calculated successfully. The applied fine is " + fmt.Sprintf("%.2f", fine),
 		Data:     updateData,
 	}
 
