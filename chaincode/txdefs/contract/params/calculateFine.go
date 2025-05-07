@@ -6,8 +6,8 @@ import (
 	"math"
 
 	"github.com/hyperledger-labs/cc-tools/errors"
-	"github.com/hyperledger-labs/goprocess-cc/chaincode/datatypes"
-	"github.com/hyperledger-labs/goprocess-cc/chaincode/txdefs/contract/models"
+	"github.com/hyperledger-labs/clausia-cc/chaincode/datatypes"
+	"github.com/hyperledger-labs/clausia-cc/chaincode/txdefs/contract/models"
 )
 
 const (

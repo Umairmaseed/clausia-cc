@@ -6,7 +6,7 @@
 version: '2'
 
 networks:
-  goprocess-cc-net:
+  clausia-cc-net:
     external: true
 
 services:
@@ -23,7 +23,7 @@ services:
     ports:
       - "5984:5984"
     networks:
-      - goprocess-cc-net
+      - clausia-cc-net
 
   peer0.org.example.com:
     environment:

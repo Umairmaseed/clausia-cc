@@ -22,7 +22,7 @@ jobs:
         go-version: 1.18      
 
     - name: Build
-      run: go build -v github.com/hyperledger-labs/goprocess-cc/chaincode
+      run: go build -v github.com/hyperledger-labs/clausia-cc/chaincode
 
     - name: Test
-      run: go test github.com/hyperledger-labs/goprocess-cc/chaincode -coverpkg=./... -v
+      run: go test github.com/hyperledger-labs/clausia-cc/chaincode -coverpkg=./... -v

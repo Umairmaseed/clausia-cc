@@ -2,9 +2,9 @@ package main
 
 import (
 	"github.com/hyperledger-labs/cc-tools/assets"
-	"github.com/hyperledger-labs/goprocess-cc/chaincode/assettypes"
-	"github.com/hyperledger-labs/goprocess-cc/chaincode/assettypes/contractassettypes"
-	"github.com/hyperledger-labs/goprocess-cc/chaincode/assettypes/documentassettypes"
+	"github.com/hyperledger-labs/clausia-cc/chaincode/assettypes"
+	"github.com/hyperledger-labs/clausia-cc/chaincode/assettypes/contractassettypes"
+	"github.com/hyperledger-labs/clausia-cc/chaincode/assettypes/documentassettypes"
 )
 
 var assetTypeList = []assets.AssetType{

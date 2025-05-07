@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # CAUTION: this script will replace every occurrence of the word
-# `goprocess-cc` in the project folder with whatever argument
+# `clausia-cc` in the project folder with whatever argument
 # you pass. Be very careful.
 
 if [ $# -lt 1 ] ; then
@@ -9,4 +9,4 @@ if [ $# -lt 1 ] ; then
   exit
 fi
 
-grep -rl goprocess-cc . --exclude-dir={.git,node_modules} | xargs sed -i s/goprocess-cc/$1/g
+grep -rl clausia-cc . --exclude-dir={.git,node_modules} | xargs sed -i s/clausia-cc/$1/g

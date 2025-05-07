@@ -27,6 +27,6 @@ fi
 rm -rf organizations/peerOrganizations
 rm -rf organizations/ordererOrganizations
 rm -rf organizations/rest-certs
-docker network create goprocess-cc-net
+docker network create clausia-cc-net
 ./network.sh up createChannel -n $ORG_QNTY
-./network.sh deployCC -ccn goprocess-cc -ccp ../chaincode -ccl go -n $ORG_QNTY -cccg $CCCG_PATH
+./network.sh deployCC -ccn clausia-cc -ccp ../chaincode -ccl go -n $ORG_QNTY -cccg $CCCG_PATH

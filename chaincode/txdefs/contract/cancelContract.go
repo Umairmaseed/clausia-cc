@@ -8,9 +8,9 @@ import (
 	"github.com/hyperledger-labs/cc-tools/errors"
 	sw "github.com/hyperledger-labs/cc-tools/stubwrapper"
 	tx "github.com/hyperledger-labs/cc-tools/transactions"
-	"github.com/hyperledger-labs/goprocess-cc/chaincode/datatypes"
-	"github.com/hyperledger-labs/goprocess-cc/chaincode/txdefs/contract/models"
-	"github.com/hyperledger-labs/goprocess-cc/chaincode/txdefs/contract/params"
+	"github.com/hyperledger-labs/clausia-cc/chaincode/datatypes"
+	"github.com/hyperledger-labs/clausia-cc/chaincode/txdefs/contract/models"
+	"github.com/hyperledger-labs/clausia-cc/chaincode/txdefs/contract/params"
 )
 
 var CancelContract = tx.Transaction{

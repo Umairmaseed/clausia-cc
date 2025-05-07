@@ -6,7 +6,7 @@ import (
 	"github.com/hyperledger-labs/cc-tools/assets"
 	"github.com/hyperledger-labs/cc-tools/errors"
 	sw "github.com/hyperledger-labs/cc-tools/stubwrapper"
-	"github.com/hyperledger-labs/goprocess-cc/chaincode/datatypes"
+	"github.com/hyperledger-labs/clausia-cc/chaincode/datatypes"
 )
 
 type Clause struct {

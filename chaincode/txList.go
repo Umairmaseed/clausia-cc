@@ -2,8 +2,8 @@ package main
 
 import (
 	tx "github.com/hyperledger-labs/cc-tools/transactions"
-	"github.com/hyperledger-labs/goprocess-cc/chaincode/txdefs/contract"
-	"github.com/hyperledger-labs/goprocess-cc/chaincode/txdefs/document"
+	"github.com/hyperledger-labs/clausia-cc/chaincode/txdefs/contract"
+	"github.com/hyperledger-labs/clausia-cc/chaincode/txdefs/document"
 )
 
 var txList = []tx.Transaction{

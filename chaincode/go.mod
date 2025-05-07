@@ -1,4 +1,4 @@
-module github.com/hyperledger-labs/goprocess-cc/chaincode
+module github.com/hyperledger-labs/clausia-cc/chaincode
 
 go 1.13
 

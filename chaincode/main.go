@@ -10,9 +10,9 @@ import (
 	"github.com/hyperledger-labs/cc-tools/events"
 	sw "github.com/hyperledger-labs/cc-tools/stubwrapper"
 	tx "github.com/hyperledger-labs/cc-tools/transactions"
-	"github.com/hyperledger-labs/goprocess-cc/chaincode/assettypes"
-	"github.com/hyperledger-labs/goprocess-cc/chaincode/datatypes"
-	"github.com/hyperledger-labs/goprocess-cc/chaincode/header"
+	"github.com/hyperledger-labs/clausia-cc/chaincode/assettypes"
+	"github.com/hyperledger-labs/clausia-cc/chaincode/datatypes"
+	"github.com/hyperledger-labs/clausia-cc/chaincode/header"
 
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	pb "github.com/hyperledger/fabric-protos-go/peer"

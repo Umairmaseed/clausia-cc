@@ -5,7 +5,7 @@ FLAG_CCAPI="none"
 FLAG_LABEL="1.0"
 
 # You can change this if you want to avoid using the --name flag
-FLAG_NAME="goprocess-cc"
+FLAG_NAME="clausia-cc"
 
 # Process command-line arguments
 while [[ $# -gt 0 ]]; do
